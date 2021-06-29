@@ -28,7 +28,7 @@
 1. GOOS="target OS" GOARCH="target arch" go build -o "output file name"
 
    |   OS   | GOOS         |       GOARCH        |
-       |:------|:------      | :---------------   |
+   |:------|:------      | :---------------   |
    |Mac|darwin|386, amd64, arm, arm64|
    |DragonflyBSD|dragonfly|amd64|
    |FreeBSD|freebsd|386, amd64, arm|
@@ -42,7 +42,7 @@
 2. [gox](https://github.com/mitchellh/gox) -osarch="target os/target arch"<br>
 
    |target os|target arch|
-       |:--------|:----------|
+   |:--------|:----------|
    |darwin|386|
    |darwin|amd64|
    |linux|386|
