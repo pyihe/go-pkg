@@ -13,13 +13,14 @@
 |[maths](https://github.com/pyihe/util/tree/master/maths)|数学相关|
 |[monitor](https://github.com/pyihe/util/tree/master/monitor)|监控相关|
 |[nets](https://github.com/pyihe/util/tree/master/nets)|网络相关|
+|[prt](https://github.com/pyihe/go-pkg/tree/master/ptr)|基础数据类型指针|
 |[queue](https://github.com/pyihe/util/tree/master/queue)|队列相关|
 |[rands](https://github.com/pyihe/util/tree/master/rands)|随机函数相关|
 |[redis](https://github.com/pyihe/util/tree/master/redis)|redis相关|
 |[snowflakes](https://github.com/pyihe/util/tree/master/snowflakes)|snowflake相关|
 |[sorts](https://github.com/pyihe/util/tree/master/sorts)|排序相关|
 |[strings](https://github.com/pyihe/util/tree/master/strings)|字符串相关|
-|[typo](https://github.com/pyihe/util/tree/master/typo)|类型相关|
+|[times](https://github.com/pyihe/go-pkg/tree/master/times)|定时器相关|
 |[utils](https://github.com/pyihe/util/tree/master/utils)| 一些辅助函数|
 |[zips](https://github.com/pyihe/util/tree/master/zips)|压缩相关| 
 
