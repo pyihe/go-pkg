@@ -30,6 +30,13 @@ func Int(min, max int) int {
 	return rand.Intn(max-min+1) + min
 }
 
+func Int64(min, max int64) int64 {
+	if min >= max {
+		panic("min bigger than max")
+	}
+	return rand.Int63n(max-min+1) + min
+}
+
 //随机指定长度的字符串
 func String(n int) string {
 	var b = make([]byte, n)
