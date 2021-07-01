@@ -56,8 +56,11 @@ func Int32(min, max int32) int32 {
 	return rad.Int31n(max-min+1) + min
 }
 
-//随机指定长度的字符串
+//String 随机指定长度的字符串
 func String(n int) string {
+	if n <= 0 {
+		panic("invalid argument to String")
+	}
 	var b = make([]byte, n)
 	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {

@@ -11,8 +11,6 @@ import (
 	"regexp"
 	"strconv"
 	"syscall"
-
-	"github.com/pyihe/go-pkg/rands"
 )
 
 var (
@@ -28,14 +26,6 @@ func CheckMailFormat(mail string) bool {
 //校验电话号码格式
 func CheckPhoneFormat(phone string) bool {
 	return phoneChecker.MatchString(phone)
-}
-
-//生成一个1-100的随机数, 用于简单的判断概率
-func LessThanIn100(per int) bool {
-	if per < 1 || per > 100 {
-		panic("input must between 1 and 100")
-	}
-	return per >= rands.Int(1, 100)
 }
 
 //如果监听到系统中断信号，则执行onNotify()
@@ -61,7 +51,7 @@ func Notify(onNotify func()) {
 	}
 }
 
-//判断src中是否有元素ele
+// Contain 判断src中是否有元素ele
 func Contain(src interface{}, ele interface{}) bool {
 	switch reflect.TypeOf(src).Kind() {
 	case reflect.Slice:
@@ -75,11 +65,11 @@ func Contain(src interface{}, ele interface{}) bool {
 	return false
 }
 
-//将嵌套的map[string]interface全部转换成一层
-func Interface2Map(data interface{}) map[string]interface{} {
+// Interface2Map 将嵌套的map[string]interface全部转换成一层
+func Interface2Map(data map[string]interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
-	for k, v := range data.(map[string]interface{}) {
-		switch v := v.(type) {
+	for k, iface := range data {
+		switch v := iface.(type) {
 		case map[string]interface{}:
 			for i, u := range v {
 				result[i] = u
@@ -91,7 +81,7 @@ func Interface2Map(data interface{}) map[string]interface{} {
 	return result
 }
 
-//gzip解压
+// UnGZIP gzip解压
 func UnGZIP(content []byte) ([]byte, error) {
 	buffer := new(bytes.Buffer)
 	err := binary.Write(buffer, binary.BigEndian, content)
@@ -110,12 +100,11 @@ func UnGZIP(content []byte) ([]byte, error) {
 	return result, nil
 }
 
-// ConvertToBinary 十进制转换为二进制字符串
-func ConvertToBinary(data int) string {
-	result := ""
+// DecimalToBinary 十进制转换为二进制字符串
+func DecimalToBinary(data int) (decimal string) {
 	for ; data > 0; data = data / 2 {
 		n := data % 2
-		result = strconv.Itoa(n) + result
+		decimal = strconv.Itoa(n) + decimal
 	}
-	return result
+	return
 }
