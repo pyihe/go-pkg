@@ -77,22 +77,24 @@ func (m *Map) Len() int {
 	return m.UnsafeLen()
 }
 
-func (m *Map) UnsafeRange(f func(interface{}, interface{})) {
+func (m *Map) UnsafeRange(f func(interface{}, interface{}) bool) {
 	if m.m == nil {
 		return
 	}
 	for k, v := range m.m {
-		f(k, v)
+		if f(k, v) {
+			return
+		}
 	}
 }
 
-func (m *Map) RLockRange(f func(interface{}, interface{})) {
+func (m *Map) RLockRange(f func(interface{}, interface{}) bool) {
 	m.RLock()
 	defer m.RUnlock()
 	m.UnsafeRange(f)
 }
 
-func (m *Map) LockRange(f func(interface{}, interface{})) {
+func (m *Map) LockRange(f func(interface{}, interface{}) bool) {
 	m.Lock()
 	defer m.Unlock()
 	m.UnsafeRange(f)
