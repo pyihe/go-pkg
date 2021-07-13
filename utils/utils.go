@@ -54,7 +54,7 @@ func Notify(onNotify func()) {
 // Contain 判断src中是否有元素ele
 func Contain(src interface{}, ele interface{}) bool {
 	switch reflect.TypeOf(src).Kind() {
-	case reflect.Slice:
+	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(src)
 		for i := 0; i < s.Len(); i++ {
 			if reflect.DeepEqual(ele, s.Index(i).Interface()) {

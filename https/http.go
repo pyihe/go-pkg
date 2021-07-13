@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrInvalidUrl     = errors.NewError(errors.ErrorCodeFail, "url must start with 'http'")
-	ErrInvalidEncoder = errors.NewError(errors.ErrorCodeFail, "invalid encoder")
+	ErrInvalidUrl     = errors.New("url must start with 'http'")
+	ErrInvalidEncoder = errors.New("invalid encoder")
 )
 
 // Get

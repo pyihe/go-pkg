@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pyihe/util/encoding"
+	"github.com/pyihe/go-pkg/encoding"
 
 	"github.com/garyburd/redigo/redis"
 )

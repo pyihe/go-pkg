@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	ErrInvalidKey      = errors.NewError(errors.ErrorCodeFail, "invalid key")
-	ErrInvalidEncoder  = errors.NewError(errors.ErrorCodeFail, "not figure encoder")
-	ErrInvalidConn     = errors.NewError(errors.ErrorCodeFail, "invalid redis conn")
-	ErrInvalidParamNum = errors.NewError(errors.ErrorCodeFail, "invalid param num")
+	ErrInvalidKey      = errors.New("invalid key")
+	ErrInvalidEncoder  = errors.New("not figure encoder")
+	ErrInvalidConn     = errors.New("invalid redis conn")
+	ErrInvalidParamNum = errors.New("invalid param num")
 )
 
 type myRedisConn struct {
