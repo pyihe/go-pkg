@@ -1,9 +1,10 @@
 package rands
 
 import (
-	"github.com/pyihe/go-pkg/bytes"
 	"math/rand"
 	"time"
+
+	"github.com/pyihe/go-pkg/bytes"
 )
 
 const (
@@ -74,4 +75,21 @@ func String(n int) string {
 		remain--
 	}
 	return bytes.String(b)
+}
+
+// ShuffleBytes shuffle 随机算法
+func ShuffleBytes(data []byte) {
+	count := len(data)
+	for i := 0; i < count; i++ {
+		pos := rand.Intn(count-i) + i
+		data[i], data[pos] = data[pos], data[i]
+	}
+}
+
+func ShuffleInt(data []int) {
+	count := len(data)
+	for i := 0; i < count; i++ {
+		pos := rand.Intn(count-i) + i
+		data[i], data[pos] = data[pos], data[i]
+	}
 }
