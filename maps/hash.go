@@ -16,6 +16,12 @@ type (
 	}
 )
 
+func NewHashTable() *HashTable {
+	return &HashTable{
+		values: make(map[interface{}]fields),
+	}
+}
+
 // init 初始化values
 func (h *HashTable) init() {
 	if h.values == nil {

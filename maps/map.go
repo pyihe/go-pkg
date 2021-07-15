@@ -3,8 +3,14 @@ package maps
 import "sync"
 
 type Map struct {
-	sync.RWMutex
-	m map[interface{}]interface{}
+	mu sync.RWMutex
+	m  map[interface{}]interface{}
+}
+
+func NewMap() *Map {
+	return &Map{
+		m: make(map[interface{}]interface{}),
+	}
 }
 
 func (m *Map) init() {
@@ -22,8 +28,8 @@ func (m *Map) UnsafeGet(key interface{}) interface{} {
 }
 
 func (m *Map) Get(key interface{}) interface{} {
-	m.RLock()
-	defer m.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	return m.UnsafeGet(key)
 }
 
@@ -33,14 +39,14 @@ func (m *Map) UnsafeSet(key interface{}, value interface{}) {
 }
 
 func (m *Map) Set(key interface{}, value interface{}) {
-	m.Lock()
-	defer m.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.UnsafeSet(key, value)
 }
 
 func (m *Map) TestAndSet(key interface{}, value interface{}) interface{} {
-	m.Lock()
-	defer m.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
 	m.init()
 
@@ -58,8 +64,8 @@ func (m *Map) UnsafeDel(key interface{}) {
 }
 
 func (m *Map) Del(key interface{}) {
-	m.Lock()
-	defer m.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.UnsafeDel(key)
 }
 
@@ -72,8 +78,8 @@ func (m *Map) UnsafeLen() int {
 }
 
 func (m *Map) Len() int {
-	m.RLock()
-	defer m.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	return m.UnsafeLen()
 }
 
@@ -89,13 +95,13 @@ func (m *Map) UnsafeRange(f func(interface{}, interface{}) bool) {
 }
 
 func (m *Map) RLockRange(f func(interface{}, interface{}) bool) {
-	m.RLock()
-	defer m.RUnlock()
+	m.mu.RLock()
+	defer m.mu.RUnlock()
 	m.UnsafeRange(f)
 }
 
 func (m *Map) LockRange(f func(interface{}, interface{}) bool) {
-	m.Lock()
-	defer m.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.UnsafeRange(f)
 }
