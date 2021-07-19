@@ -20,6 +20,7 @@
 |[snowflakes](https://github.com/pyihe/go-pkg/tree/master/snowflakes)|snowflake相关|
 |[sorts](https://github.com/pyihe/go-pkg/tree/master/sorts)|排序相关|
 |[strings](https://github.com/pyihe/go-pkg/tree/master/strings)|字符串相关|
+|[sync](https://github.com/pyihe/go-pkg/tree/master/syncs)|同步锁相关|
 |[times](https://github.com/pyihe/go-pkg/tree/master/times)|定时器相关|
 |[go-pkgs](https://github.com/pyihe/go-pkg/tree/master/go-pkgs)| 一些辅助函数|
 |[zips](https://github.com/pyihe/go-pkg/tree/master/zips)|压缩相关| 
