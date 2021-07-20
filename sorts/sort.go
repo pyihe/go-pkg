@@ -1,7 +1,7 @@
 package sorts
 
 //从小到大排序
-//冒泡排序，每次找出最小的值放在最前面
+// BubbleSort 冒泡排序，每次找出最小的值放在最前面
 func BubbleSort(data []int) {
 	count := len(data)
 	if count <= 1 {
@@ -17,7 +17,7 @@ func BubbleSort(data []int) {
 	}
 }
 
-//快速排序
+// QuickSort 快速排序
 func QuickSort(data []int) []int {
 	count := len(data)
 	if count <= 0 {
@@ -54,7 +54,7 @@ func QuickSort(data []int) []int {
 	return result
 }
 
-//选择排序:每次选择出未排序切片里最大或者最小的数放入已排好序的数组里
+// SelectSort 选择排序:每次选择出未排序切片里最大或者最小的数放入已排好序的数组里
 func SelectSort(data []int) []int {
 	count := len(data)
 	if count <= 0 {
@@ -76,10 +76,10 @@ func SelectSort(data []int) []int {
 	return data
 }
 
-/*插入排序:从第一个元素开始，该元素可以认为已经被排序，取出下一个元素，
-  在已经排序的元素序列中从后向前扫描如果该元素（已排序）大于新元素，
-  将该元素移到下一位置，重复步骤3，直到找到已排序的元素小于或者等于新
-  元素的位置，将新元素插入到下一位置中，重复步骤2*/
+// InsertSort 插入排序:从第一个元素开始，该元素可以认为已经被排序，取出下一个元素，
+//  在已经排序的元素序列中从后向前扫描如果该元素（已排序）大于新元素，
+//  将该元素移到下一位置，重复步骤3，直到找到已排序的元素小于或者等于新
+//  元素的位置，将新元素插入到下一位置中，重复步骤2
 func InsertSort(data []int) {
 	count := len(data)
 	if count <= 1 {
