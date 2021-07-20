@@ -1,4 +1,4 @@
-package maths
+package sorts
 
 import "sort"
 
@@ -11,6 +11,7 @@ type Uint32Slice []uint32
 type Int64Slice []int64
 type Uint64Slice []uint64
 type Float32Slice []float32
+type StringSlice []string
 
 func SortUint8(s []uint8) {
 	sort.Sort(Uint8Slice(s))
@@ -46,6 +47,10 @@ func SortUint64(s []uint64) {
 
 func SortFloat32s(s []float32) {
 	sort.Sort(Float32Slice(s))
+}
+
+func SortStrings(s []string) {
+	sort.Sort(StringSlice(s))
 }
 
 func (u Uint8Slice) Len() int {
@@ -154,4 +159,16 @@ func (f32s Float32Slice) Less(i, j int) bool {
 
 func (f32s Float32Slice) Swap(i, j int) {
 	f32s[i], f32s[j] = f32s[j], f32s[i]
+}
+
+func (s StringSlice) Len() int {
+	return len(s)
+}
+
+func (s StringSlice) Less(i, j int) bool {
+	return s[i] < s[j]
+}
+
+func (s StringSlice) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
