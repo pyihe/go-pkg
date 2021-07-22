@@ -17,7 +17,7 @@ func (f *float64Slice) String() string {
 	if f == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", *f)
+	return fmt.Sprintf("len:[%v] cap:[%v] value:%v", len(*f), cap(*f), *f)
 }
 
 func (f *float64Slice) Len() int {

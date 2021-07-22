@@ -17,7 +17,7 @@ func (i32 *uint32Slice) String() string {
 	if i32 == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", *i32)
+	return fmt.Sprintf("len:[%v] cap:[%v] value:%v", len(*i32), cap(*i32), *i32)
 }
 
 func (i32 *uint32Slice) Len() int {

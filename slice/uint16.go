@@ -17,7 +17,7 @@ func (u16 *uint16Slice) String() string {
 	if u16 == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", *u16)
+	return fmt.Sprintf("len:[%v] cap:[%v] value:%v", len(*u16), cap(*u16), *u16)
 }
 
 func (u16 *uint16Slice) Len() int {

@@ -17,7 +17,7 @@ func (us *uintSlice) String() string {
 	if us == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", *us)
+	return fmt.Sprintf("len:[%v] cap:[%v] value:%v", len(*us), cap(*us), *us)
 }
 
 func (us *uintSlice) Len() int {

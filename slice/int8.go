@@ -17,7 +17,7 @@ func (i8 *int8Slice) String() string {
 	if i8 == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", *i8)
+	return fmt.Sprintf("len:[%v] cap:[%v] value:%v", len(*i8), cap(*i8), *i8)
 }
 
 func (i8 *int8Slice) Len() int {

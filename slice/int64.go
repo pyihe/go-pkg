@@ -17,7 +17,7 @@ func (i64 *int64Slice) String() string {
 	if i64 == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", *i64)
+	return fmt.Sprintf("len:[%v] cap:[%v] value:%v", len(*i64), cap(*i64), *i64)
 }
 
 func (i64 *int64Slice) Len() int {
