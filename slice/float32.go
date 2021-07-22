@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type float32Slice []float32
 
@@ -16,11 +20,32 @@ func (f *float32Slice) String() string {
 	return fmt.Sprintf("%v", *f)
 }
 
+func (f *float32Slice) Len() int {
+	if f == nil {
+		return 0
+	}
+	return len(*f)
+}
+
+func (f *float32Slice) Cap() int {
+	if f == nil {
+		return 0
+	}
+	return cap(*f)
+}
+
+func (f *float32Slice) Sort() {
+	if f == nil {
+		return
+	}
+	sorts.SortFloat32s(*f)
+}
+
 func (f *float32Slice) PushBack(x interface{}) (bool, int) {
 	if f == nil {
 		return false, 0
 	}
-	v, ok := x.(float32)
+	ok, v := convertToFloat32(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (f *float32Slice) PushFront(x interface{}) (bool, int) {
 	if f == nil {
 		return false, 0
 	}
-	v, ok := x.(float32)
+	ok, v := convertToFloat32(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (f *float32Slice) Index(x interface{}) (index int) {
 	if f == nil {
 		return
 	}
-	v, ok := x.(float32)
+	ok, v := convertToFloat32(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (f *float32Slice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (f *float32Slice) Delete(x interface{}) (ok bool) {
+	if f == nil {
+		return
+	}
+	if len(*f) == 0 {
+		return
+	}
+	ok, v := convertToFloat32(x)
+	if !ok {
+		return false
+	}
+	for i, e := range *f {
+		if e == v {
+			*f = append((*f)[:i], (*f)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

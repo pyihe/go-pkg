@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type uint16Slice []uint16
 
@@ -16,11 +20,32 @@ func (u16 *uint16Slice) String() string {
 	return fmt.Sprintf("%v", *u16)
 }
 
+func (u16 *uint16Slice) Len() int {
+	if u16 == nil {
+		return 0
+	}
+	return len(*u16)
+}
+
+func (u16 *uint16Slice) Cap() int {
+	if u16 == nil {
+		return 0
+	}
+	return cap(*u16)
+}
+
+func (u16 *uint16Slice) Sort() {
+	if u16 == nil {
+		return
+	}
+	sorts.SortUint16s(*u16)
+}
+
 func (u16 *uint16Slice) PushBack(x interface{}) (bool, int) {
 	if u16 == nil {
 		return false, 0
 	}
-	v, ok := x.(uint16)
+	ok, v := convertToUint16(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (u16 *uint16Slice) PushFront(x interface{}) (bool, int) {
 	if u16 == nil {
 		return false, 0
 	}
-	v, ok := x.(uint16)
+	ok, v := convertToUint16(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (u16 *uint16Slice) Index(x interface{}) (index int) {
 	if u16 == nil {
 		return
 	}
-	v, ok := x.(uint16)
+	ok, v := convertToUint16(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (u16 *uint16Slice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (u16 *uint16Slice) Delete(x interface{}) (ok bool) {
+	if u16 == nil {
+		return
+	}
+	if len(*u16) == 0 {
+		return
+	}
+	ok, v := convertToUint16(x)
+	if !ok {
+		return
+	}
+	for i, e := range *u16 {
+		if e == v {
+			*u16 = append((*u16)[:i], (*u16)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

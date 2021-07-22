@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type uint32Slice []uint32
 
@@ -16,11 +20,32 @@ func (i32 *uint32Slice) String() string {
 	return fmt.Sprintf("%v", *i32)
 }
 
+func (i32 *uint32Slice) Len() int {
+	if i32 == nil {
+		return 0
+	}
+	return len(*i32)
+}
+
+func (i32 *uint32Slice) Cap() int {
+	if i32 == nil {
+		return 0
+	}
+	return cap(*i32)
+}
+
+func (i32 *uint32Slice) Sort() {
+	if i32 == nil {
+		return
+	}
+	sorts.SortUint32s(*i32)
+}
+
 func (i32 *uint32Slice) PushBack(x interface{}) (bool, int) {
 	if i32 == nil {
 		return false, 0
 	}
-	v, ok := x.(uint32)
+	ok, v := convertToUint32(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (i32 *uint32Slice) PushFront(x interface{}) (bool, int) {
 	if i32 == nil {
 		return false, 0
 	}
-	v, ok := x.(uint32)
+	ok, v := convertToUint32(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (i32 *uint32Slice) Index(x interface{}) (index int) {
 	if i32 == nil {
 		return
 	}
-	v, ok := x.(uint32)
+	ok, v := convertToUint32(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (i32 *uint32Slice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (i32 *uint32Slice) Delete(x interface{}) (ok bool) {
+	if i32 == nil {
+		return
+	}
+	if len(*i32) == 0 {
+		return
+	}
+	ok, v := convertToUint32(x)
+	if !ok {
+		return
+	}
+	for i, e := range *i32 {
+		if e == v {
+			*i32 = append((*i32)[:i], (*i32)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

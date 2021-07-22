@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type stringSlice []string
 
@@ -16,11 +20,32 @@ func (ss *stringSlice) String() string {
 	return fmt.Sprintf("%v", *ss)
 }
 
+func (ss *stringSlice) Len() int {
+	if ss == nil {
+		return 0
+	}
+	return len(*ss)
+}
+
+func (ss *stringSlice) Cap() int {
+	if ss == nil {
+		return 0
+	}
+	return cap(*ss)
+}
+
+func (ss *stringSlice) Sort() {
+	if ss == nil {
+		return
+	}
+	sorts.SortStrings(*ss)
+}
+
 func (ss *stringSlice) PushBack(x interface{}) (bool, int) {
 	if ss == nil {
 		return false, 0
 	}
-	v, ok := x.(string)
+	ok, v := convertToIntString(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (ss *stringSlice) PushFront(x interface{}) (bool, int) {
 	if ss == nil {
 		return false, 0
 	}
-	v, ok := x.(string)
+	ok, v := convertToIntString(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (ss *stringSlice) Index(x interface{}) (index int) {
 	if ss == nil {
 		return
 	}
-	v, ok := x.(string)
+	ok, v := convertToIntString(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (ss *stringSlice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (ss *stringSlice) Delete(x interface{}) (ok bool) {
+	if ss == nil {
+		return
+	}
+	if len(*ss) == 0 {
+		return
+	}
+	ok, v := convertToIntString(x)
+	if !ok {
+		return
+	}
+	for i, e := range *ss {
+		if e == v {
+			*ss = append((*ss)[:i], (*ss)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

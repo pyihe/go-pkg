@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type int8Slice []int8
 
@@ -16,11 +20,32 @@ func (i8 *int8Slice) String() string {
 	return fmt.Sprintf("%v", *i8)
 }
 
+func (i8 *int8Slice) Len() int {
+	if i8 == nil {
+		return 0
+	}
+	return len(*i8)
+}
+
+func (i8 *int8Slice) Cap() int {
+	if i8 == nil {
+		return 0
+	}
+	return cap(*i8)
+}
+
+func (i8 *int8Slice) Sort() {
+	if i8 == nil {
+		return
+	}
+	sorts.SortInt8s(*i8)
+}
+
 func (i8 *int8Slice) PushBack(x interface{}) (bool, int) {
 	if i8 == nil {
 		return false, 0
 	}
-	v, ok := x.(int8)
+	ok, v := convertToInt8(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (i8 *int8Slice) PushFront(x interface{}) (bool, int) {
 	if i8 == nil {
 		return false, 0
 	}
-	v, ok := x.(int8)
+	ok, v := convertToInt8(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (i8 *int8Slice) Index(x interface{}) (index int) {
 	if i8 == nil {
 		return
 	}
-	v, ok := x.(int8)
+	ok, v := convertToInt8(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (i8 *int8Slice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (i8 *int8Slice) Delete(x interface{}) (ok bool) {
+	if i8 == nil {
+		return
+	}
+	if len(*i8) == 0 {
+		return
+	}
+	ok, v := convertToInt8(x)
+	if !ok {
+		return
+	}
+	for i, e := range *i8 {
+		if e == v {
+			*i8 = append((*i8)[:i], (*i8)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

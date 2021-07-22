@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type int64Slice []int64
 
@@ -16,11 +20,32 @@ func (i64 *int64Slice) String() string {
 	return fmt.Sprintf("%v", *i64)
 }
 
+func (i64 *int64Slice) Len() int {
+	if i64 == nil {
+		return 0
+	}
+	return len(*i64)
+}
+
+func (i64 *int64Slice) Cap() int {
+	if i64 == nil {
+		return 0
+	}
+	return cap(*i64)
+}
+
+func (i64 *int64Slice) Sort() {
+	if i64 == nil {
+		return
+	}
+	sorts.SortInt64s(*i64)
+}
+
 func (i64 *int64Slice) PushBack(x interface{}) (bool, int) {
 	if i64 == nil {
 		return false, 0
 	}
-	v, ok := x.(int64)
+	ok, v := convertToInt64(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (i64 *int64Slice) PushFront(x interface{}) (bool, int) {
 	if i64 == nil {
 		return false, 0
 	}
-	v, ok := x.(int64)
+	ok, v := convertToInt64(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (i64 *int64Slice) Index(x interface{}) (index int) {
 	if i64 == nil {
 		return
 	}
-	v, ok := x.(int64)
+	ok, v := convertToInt64(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (i64 *int64Slice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (i64 *int64Slice) Delete(x interface{}) (ok bool) {
+	if i64 == nil {
+		return
+	}
+	if len(*i64) == 0 {
+		return
+	}
+	ok, v := convertToInt64(x)
+	if !ok {
+		return
+	}
+	for i, e := range *i64 {
+		if e == v {
+			*i64 = append((*i64)[:i], (*i64)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

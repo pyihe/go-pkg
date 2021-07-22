@@ -2,6 +2,8 @@ package slice
 
 import (
 	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
 )
 
 type intSlice []int
@@ -18,11 +20,32 @@ func (is *intSlice) String() string {
 	return fmt.Sprintf("%v", *is)
 }
 
+func (is *intSlice) Len() int {
+	if is == nil {
+		return 0
+	}
+	return len(*is)
+}
+
+func (is *intSlice) Cap() int {
+	if is == nil {
+		return 0
+	}
+	return cap(*is)
+}
+
+func (is *intSlice) Sort() {
+	if is == nil {
+		return
+	}
+	sorts.SortInts(*is)
+}
+
 func (is *intSlice) PushBack(x interface{}) (bool, int) {
 	if is == nil {
 		return false, 0
 	}
-	v, ok := x.(int)
+	ok, v := convertToInt(x)
 	if !ok {
 		return false, 0
 	}
@@ -42,7 +65,7 @@ func (is *intSlice) PushFront(x interface{}) (bool, int) {
 	if is == nil {
 		return false, 0
 	}
-	v, ok := x.(int)
+	ok, v := convertToInt(x)
 	if !ok {
 		return false, 0
 	}
@@ -102,7 +125,7 @@ func (is *intSlice) Index(x interface{}) (index int) {
 	if is == nil {
 		return
 	}
-	v, ok := x.(int)
+	ok, v := convertToInt(x)
 	if !ok {
 		return
 	}
@@ -136,4 +159,25 @@ func (is *intSlice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (is *intSlice) Delete(x interface{}) (ok bool) {
+	if is == nil {
+		return
+	}
+	if len(*is) == 0 {
+		return
+	}
+	ok, v := convertToInt(x)
+	if !ok {
+		return false
+	}
+	for i, e := range *is {
+		if e == v {
+			*is = append((*is)[:i], (*is)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }

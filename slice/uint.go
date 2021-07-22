@@ -1,6 +1,10 @@
 package slice
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pyihe/go-pkg/sorts"
+)
 
 type uintSlice []uint
 
@@ -16,11 +20,32 @@ func (us *uintSlice) String() string {
 	return fmt.Sprintf("%v", *us)
 }
 
+func (us *uintSlice) Len() int {
+	if us == nil {
+		return 0
+	}
+	return len(*us)
+}
+
+func (us *uintSlice) Cap() int {
+	if us == nil {
+		return 0
+	}
+	return cap(*us)
+}
+
+func (us *uintSlice) Sort() {
+	if us == nil {
+		return
+	}
+	sorts.SortUints(*us)
+}
+
 func (us *uintSlice) PushBack(x interface{}) (bool, int) {
 	if us == nil {
 		return false, 0
 	}
-	v, ok := x.(uint)
+	ok, v := convertToUint(x)
 	if !ok {
 		return false, 0
 	}
@@ -40,7 +65,7 @@ func (us *uintSlice) PushFront(x interface{}) (bool, int) {
 	if us == nil {
 		return false, 0
 	}
-	v, ok := x.(uint)
+	ok, v := convertToUint(x)
 	if !ok {
 		return false, 0
 	}
@@ -100,7 +125,7 @@ func (us *uintSlice) Index(x interface{}) (index int) {
 	if us == nil {
 		return
 	}
-	v, ok := x.(uint)
+	ok, v := convertToUint(x)
 	if !ok {
 		return
 	}
@@ -134,4 +159,25 @@ func (us *uintSlice) Range(fn func(index int, ele interface{}) bool) {
 			break
 		}
 	}
+}
+
+func (us *uintSlice) Delete(x interface{}) (ok bool) {
+	if us == nil {
+		return
+	}
+	if len(*us) == 0 {
+		return
+	}
+	ok, v := convertToUint(x)
+	if !ok {
+		return
+	}
+	for i, e := range *us {
+		if e == v {
+			*us = append((*us)[:i], (*us)[i+1:]...)
+			ok = true
+			break
+		}
+	}
+	return
 }
