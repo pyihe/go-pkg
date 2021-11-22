@@ -10,6 +10,10 @@ const (
 
 type ErrorCode int64
 
+func NewErrCode(code int64) ErrorCode {
+	return ErrorCode(code)
+}
+
 func (ec ErrorCode) Int() int {
 	return int(ec)
 }
