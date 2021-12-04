@@ -39,7 +39,7 @@ func (e *_err) Error() string {
 	if e == nil {
 		return ""
 	}
-	return fmt.Sprintf("err: %d-%s", e.code, e.msg)
+	return fmt.Sprintf("code: %d	err: %s", e.code, e.msg)
 }
 
 func (e *_err) Code() ErrorCode {

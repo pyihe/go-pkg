@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	DefaultErrCode ErrorCode = -1
+	DefaultErrCode ErrorCode = 100000
 )
 
 type ErrorCode int64
