@@ -5,10 +5,14 @@ import (
 )
 
 const (
-	DefaultErrCode ErrorCode = -1
+	DefaultErrCode ErrorCode = 100000
 )
 
 type ErrorCode int64
+
+func NewErrCode(code int64) ErrorCode {
+	return ErrorCode(code)
+}
 
 func (ec ErrorCode) Int() int {
 	return int(ec)
