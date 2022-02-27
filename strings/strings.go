@@ -1,16 +1,18 @@
 package strings
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
 )
 
 // Bytes string转换为[]byte
-func Bytes(s string) []byte {
-	sp := *(*[2]uintptr)(unsafe.Pointer(&s))
-	bp := [3]uintptr{sp[0], sp[1], sp[1]}
-	return *(*[]byte)(unsafe.Pointer(&bp))
+func Bytes(s string) (b []byte) {
+	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	bh.Data, bh.Len, bh.Cap = sh.Data, sh.Len, sh.Len
+	return b
 }
 
 // Uint64 string转换为uint64
@@ -108,7 +110,7 @@ func Reverse(s []string) {
 	}
 }
 
-// Remove
+// Remove 从s中删除第一个ele
 func Remove(ele string, s []string) {
 	for i := range s {
 		if s[i] == ele {
@@ -153,9 +155,8 @@ func FilterRepeatBySlice(slc []string) []string {
 	return result
 }
 
-//通过map转换
+// FilterRepeatByMap 通过map元素去重
 func FilterRepeatByMap(slc []string) []string {
-	//result := make([]string, 0)
 	var result []string
 	tempMap := make(map[string]byte, 0)
 	for _, e := range slc {

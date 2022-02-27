@@ -1,13 +1,28 @@
 package bytes
 
-import "unsafe"
+import (
+	"unsafe"
+
+	"github.com/valyala/bytebufferpool"
+)
+
+type ByteBuffer = bytebufferpool.ByteBuffer
+
+var (
+	Get = bytebufferpool.Get()
+	Put = func(b *ByteBuffer) {
+		if b != nil {
+			bytebufferpool.Put(b)
+		}
+	}
+)
 
 // String []byte转换为string
 func String(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-// SliceEqual
+// SliceEqual 判断两个字节切片每个元素是否相等
 func SliceEqual(a, b []byte) bool {
 	aLen, bLen := len(a), len(b)
 	if aLen != bLen {
@@ -27,7 +42,7 @@ func SliceEqual(a, b []byte) bool {
 	return true
 }
 
-// Contain
+// Contain 判断字节切片b是否包含ele元素
 func Contain(ele byte, b []byte) bool {
 	for _, v := range b {
 		if v == ele {
@@ -37,7 +52,7 @@ func Contain(ele byte, b []byte) bool {
 	return false
 }
 
-// Reverse
+// Reverse 翻转字节切片
 func Reverse(b []byte) {
 	l := len(b)
 	for i := l/2 - 1; i >= 0; i-- {
@@ -46,7 +61,7 @@ func Reverse(b []byte) {
 	}
 }
 
-// Remove
+// Remove 从b中删除ele
 func Remove(ele byte, b []byte) {
 	for i := range b {
 		if ele == b[i] {
