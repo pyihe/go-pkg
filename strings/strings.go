@@ -62,6 +62,17 @@ func Float64(s string) (float64, error) {
 	return strconv.ParseFloat(s, 64)
 }
 
+// Last 返回s中最后一个b的位置
+func Last(s string, b byte) int {
+	i := len(s)
+	for i--; i >= 0; i-- {
+		if s[i] == b {
+			break
+		}
+	}
+	return i
+}
+
 // IsEmpty 判断字符串本身或者去除空格后是否为空字符串
 func IsEmpty(s string) bool {
 	if s == "" {
