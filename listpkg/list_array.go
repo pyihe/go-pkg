@@ -2,6 +2,8 @@ package listpkg
 
 import (
 	"sync"
+
+	"github.com/pyihe/go-pkg/mathpkg"
 )
 
 // ArrayList 切片实现的队列
@@ -22,6 +24,12 @@ func (array *ArrayList) LPush(elements ...interface{}) (n int) {
 	if elementCount == 0 {
 		return
 	}
+	// 按顺序添加进队列，先进后出的顺序添加
+	if elementCount > 1 {
+		for i := 0; i < elementCount/2; i++ {
+			elements[i], elements[elementCount-i-1] = elements[elementCount-i-1], elements[i]
+		}
+	}
 	array.mu.Lock()
 	array.data = append(elements, array.data...)
 	n = elementCount
@@ -29,10 +37,11 @@ func (array *ArrayList) LPush(elements ...interface{}) (n int) {
 	return
 }
 
-// LPop 从队首取数据
+// LPop 从队首取出n个数据(如果n超过队列长度，则全部取出)
 func (array *ArrayList) LPop(n int) (data []interface{}) {
 	array.mu.Lock()
-	if len(array.data) > 0 {
+	if count := len(array.data); count > 0 {
+		n = mathpkg.MinInt(n, count)
 		data, array.data = array.data[:n], array.data[n:]
 	}
 	array.mu.Unlock()
@@ -74,7 +83,7 @@ func (array *ArrayList) LInsert(mark int, val ...interface{}) (n int) {
 	if mark < 0 || mark >= cnt {
 		return
 	}
-	array.data = insertFunc(array.data, mark, val)
+	array.data = insertFunc(array.data, mark, val...)
 	n = vCount
 	return
 }
@@ -89,10 +98,15 @@ func (array *ArrayList) RPush(elements ...interface{}) (n int) {
 }
 
 // RPop 从队尾取出并删除元素
-func (array *ArrayList) RPop() (data interface{}) {
+func (array *ArrayList) RPop(n int) (data []interface{}) {
 	array.mu.Lock()
-	if n := len(array.data); n > 0 {
-		data, array.data = array.data[n-1], array.data[:n-1]
+	if count := len(array.data); count > 0 {
+		n = mathpkg.MinInt(n, count)
+		data, array.data = array.data[count-n:], array.data[:count-n]
+		// 需要对结果进行倒序
+		for i := 0; i < n/2; i++ {
+			data[i], data[n-1-i] = data[n-i-1], data[i]
+		}
 	}
 	array.mu.Unlock()
 	return
@@ -138,7 +152,7 @@ func (array *ArrayList) RInsert(mark int, val ...interface{}) (n int) {
 	if mark < 0 || mark >= cnt {
 		return
 	}
-	array.data = insertFunc(array.data, mark, val)
+	array.data = insertFunc(array.data, mark, val...)
 	n = vCount
 	return
 }
@@ -202,36 +216,32 @@ func (array *ArrayList) Remove(data interface{}, count int) (rmCount int) {
 
 	switch {
 	case count > 0:
-		for i := 1; i <= count; i++ {
-			for index, ele := range array.data {
-				if ele == data {
-					array.data = removeFunc(array.data, index)
-					rmCount += 1
+		for i := 0; i < len(array.data); {
+			if array.data[i] == data {
+				array.data = removeFunc(array.data, i)
+				if rmCount += 1; rmCount == count {
 					break
 				}
+			} else {
+				i++
 			}
 		}
 	case count < 0:
-		for i := count; i < 0; i++ {
-			for index, ele := range array.data {
-				if ele == data {
-					array.data = removeFunc(array.data, index)
-					rmCount += 1
+		for i := len(array.data) - 1; i >= 0; i-- {
+			if array.data[i] == data {
+				array.data = removeFunc(array.data, i)
+				if rmCount += 1; rmCount == -count {
 					break
 				}
 			}
 		}
 	default:
-	outLoop:
-		for {
-			for index, ele := range array.data {
-				if ele == data {
-					array.data = removeFunc(array.data, index)
-					rmCount += 1
-					continue outLoop
-				}
+		for i := 0; i < len(array.data); {
+			if array.data[i] == data {
+				array.data = removeFunc(array.data, i)
+			} else {
+				i++
 			}
-			break outLoop
 		}
 	}
 	return
@@ -273,20 +283,14 @@ func (array *ArrayList) Trim(start, end int) (result []interface{}) {
 	defer array.mu.Unlock()
 
 	length := len(array.data)
-	start, end = handleIndex(length, start, end)
-	//start小于等于左边界，end大于等于右边界，不处理
-	if start <= 0 && end >= length-1 {
-		return
-	}
-
+	start = mathpkg.MaxInt(mathpkg.MinInt(start, length), 0)
+	end = mathpkg.MaxInt(mathpkg.MinInt(end, length), 0)
 	//start大于end，或者start超出右边界，则直接将列表置空
-	if start > end || start >= length {
-		result = array.data
-		array.data = nil
+	if start > end {
 		return
 	}
 
-	result = append(result, array.data[start:end])
+	result = append(result, array.data[start:end]...)
 	copy(array.data[start:], array.data[end:])
 	for k, n := len(array.data)-end+start, len(array.data); k < n; k++ {
 		array.data[k] = nil

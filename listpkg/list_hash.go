@@ -10,11 +10,24 @@ type HashList struct {
 	data map[interface{}]*list.List
 }
 
-func NewHList() *HashList {
+func NewHashList() *HashList {
 	return &HashList{
 		mu:   &sync.RWMutex{},
 		data: make(map[interface{}]*list.List),
 	}
+}
+
+func (hl *HashList) Data() (data map[interface{}][]interface{}) {
+	data = make(map[interface{}][]interface{})
+	for k, record := range hl.data {
+		if record.Len() == 0 {
+			continue
+		}
+		for e := record.Front(); e != nil; e = e.Next() {
+			data[k] = append(data[k], e.Value)
+		}
+	}
+	return
 }
 
 // LPush 向队首添加数据, 返回实际添加的数据个数

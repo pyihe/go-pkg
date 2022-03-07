@@ -12,8 +12,8 @@ var (
 	localIP string
 )
 
-// GetLocalIP 获取本地内网IP
-func GetLocalIP() string {
+// LocalIP 获取本地内网IP
+func LocalIP() string {
 	once.Do(func() {
 		ips, _ := internetIP()
 		if len(ips) > 0 {
@@ -25,8 +25,8 @@ func GetLocalIP() string {
 	return localIP
 }
 
-// GetInternalIP 获取Internal IP
-func GetInternalIP() string {
+// InternalIP 获取Internal IP
+func InternalIP() string {
 	inters, err := net.Interfaces()
 	if err != nil {
 		return ""
