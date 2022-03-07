@@ -2,7 +2,6 @@ package listpkg
 
 import (
 	"container/list"
-	"reflect"
 	"sync"
 )
 
@@ -18,19 +17,44 @@ func NewHList() *HashList {
 	}
 }
 
-// LPush 向队首添加数据
+// LPush 向队首添加数据, 返回实际添加的数据个数
 func (hl *HashList) LPush(key interface{}, data ...interface{}) (n int) {
+	if len(data) == 0 {
+		return
+	}
 	hl.mu.Lock()
 	n = hl.push(true, key, data...)
 	hl.mu.Unlock()
+	return
+}
 
+// LInsert 在指定位置前面插入数据，返回实际插入的数据个数
+func (hl *HashList) LInsert(key interface{}, mark interface{}, val ...interface{}) (n int) {
+	if len(val) == 0 {
+		return
+	}
+	hl.mu.Lock()
+	defer hl.mu.Unlock()
+
+	record := hl.data[key]
+	pElement := find(record, mark)
+	if pElement == nil {
+		return
+	}
+	for _, v := range val {
+		n += 1
+		record.InsertBefore(v, pElement)
+	}
 	return
 }
 
 // LPop 从队首取出数据
-func (hl *HashList) LPop(key interface{}) (data interface{}) {
+func (hl *HashList) LPop(key interface{}, n int) (elements []interface{}) {
+	if n <= 0 {
+		return
+	}
 	hl.mu.Lock()
-	data = hl.pop(true, key)
+	elements = hl.pop(true, n, key)
 	hl.mu.Unlock()
 	return
 }
@@ -44,15 +68,37 @@ func (hl *HashList) RPush(key interface{}, data ...interface{}) (n int) {
 }
 
 // RPop 从队尾取数据
-func (hl *HashList) RPop(key interface{}) (data interface{}) {
+func (hl *HashList) RPop(key interface{}, n int) (elements []interface{}) {
 	hl.mu.Lock()
-	data = hl.pop(false, key)
+	elements = hl.pop(false, n, key)
 	hl.mu.Unlock()
 	return
 }
 
-// Index 根据索引查找数据
-func (hl *HashList) Index(key interface{}, idx int) (data interface{}) {
+// RInsert 在指定位置后面插入数据
+// 插入失败返回-1
+// 插入成功返回队列长度
+func (hl *HashList) RInsert(key interface{}, mark interface{}, val ...interface{}) (n int) {
+	if len(val) == 0 {
+		return
+	}
+	hl.mu.Lock()
+	defer hl.mu.Unlock()
+
+	record := hl.data[key]
+	pElement := find(record, mark)
+	if pElement == nil {
+		return
+	}
+	for _, v := range val {
+		record.InsertAfter(v, pElement)
+		n += 1
+	}
+	return
+}
+
+// IndexValue 根据索引查找数据
+func (hl *HashList) IndexValue(key interface{}, idx int) (data interface{}) {
 	hl.mu.RLock()
 	defer hl.mu.RUnlock()
 
@@ -64,6 +110,23 @@ func (hl *HashList) Index(key interface{}, idx int) (data interface{}) {
 
 	if element := index(record, newIndex); element != nil {
 		data = element.Value
+	}
+	return
+}
+
+// Count 获取data的数量
+func (hl *HashList) Count(key interface{}, data interface{}) (n int) {
+	hl.mu.Lock()
+	defer hl.mu.Unlock()
+
+	record := hl.data[key]
+	if record == nil || record.Len() == 0 {
+		return
+	}
+	for e := record.Front(); e != nil; e = e.Next() {
+		if e.Value == data {
+			n += 1
+		}
 	}
 	return
 }
@@ -85,19 +148,19 @@ func (hl *HashList) Remove(key interface{}, data interface{}, count int) (rmCoun
 	switch {
 	case count > 0:
 		for e := record.Front(); e != nil && len(es) < count; e = e.Next() {
-			if reflect.DeepEqual(e.Value, data) {
+			if e.Value == data {
 				es = append(es, e)
 			}
 		}
 	case count < 0:
 		for e := record.Back(); e != nil && len(es) < count; e = e.Prev() {
-			if reflect.DeepEqual(e.Value, data) {
+			if e.Value == data {
 				es = append(es, e)
 			}
 		}
 	default:
 		for e := record.Front(); e != nil; e = e.Next() {
-			if reflect.DeepEqual(e.Value, data) {
+			if e.Value == data {
 				es = append(es, e)
 			}
 		}
@@ -107,49 +170,6 @@ func (hl *HashList) Remove(key interface{}, data interface{}, count int) (rmCoun
 	}
 	rmCount = len(es)
 	return
-}
-
-func (hl *HashList) UnsafeLInsert(key interface{}, pivot, val interface{}) int {
-	record := hl.data[key]
-	pEle := find(record, pivot)
-	if pEle == nil {
-		return -1
-	}
-	record.InsertBefore(val, pEle)
-	return record.Len()
-}
-
-// LInsert 在指定位置前面插入数据
-// 插入失败返回-1
-// 插入成功返回队列长度
-func (hl *HashList) LInsert(key interface{}, mark, val interface{}) int {
-	hl.mu.Lock()
-	defer hl.mu.Unlock()
-
-	record := hl.data[key]
-	pElement := find(record, mark)
-	if pElement == nil {
-		return -1
-	}
-	record.InsertBefore(val, pElement)
-	return record.Len()
-}
-
-// RInsert 在指定位置后面插入数据
-// 插入失败返回-1
-// 插入成功返回队列长度
-func (hl *HashList) RInsert(key interface{}, mark, val interface{}) int {
-	hl.mu.Lock()
-	defer hl.mu.Unlock()
-
-	record := hl.data[key]
-	pElement := find(record, mark)
-	if pElement == nil {
-		return -1
-	}
-	record.InsertAfter(val, pElement)
-
-	return record.Len()
 }
 
 // Set 将索引处的数据设置为val
@@ -166,79 +186,41 @@ func (hl *HashList) Set(key interface{}, idx int, val interface{}) (ok bool) {
 	return
 }
 
-func (hl *HashList) UnsafeRange(key interface{}, start, end int) (result []interface{}) {
-	record := hl.data[key]
-	if record == nil || record.Len() == 0 {
-		return nil
-	}
-	length := record.Len()
-	start, end = handleIndex(length, start, end)
-	if start > end || start >= length {
-		return nil
-	}
-
-	mid := length >> 1
-	if end <= mid || end-mid < mid-start {
-		flag := 0
-		for p := record.Front(); p != nil && flag <= end; p, flag = p.Next(), flag+1 {
-			if flag >= start {
-				result = append(result, p.Value)
-			}
-		}
-	} else {
-		flag := length - 1
-		for p := record.Back(); p != nil && flag >= start; p, flag = p.Prev(), flag-1 {
-			if flag <= end {
-				result = append(result, p.Value)
-			}
-		}
-		if len(result) > 0 {
-			for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
-				result[i], result[j] = result[j], result[i]
-			}
-		}
-	}
-	return
-}
-
-// Range 遍历start到end之间的数据
-func (hl *HashList) Range(key interface{}, start, end int) (result []interface{}) {
+// RangeFunc 遍历start到end之间的数据
+func (hl *HashList) RangeFunc(key interface{}, start, end int, fn func(data interface{}) (over bool)) {
 	hl.mu.Lock()
 	defer hl.mu.Unlock()
 
 	record := hl.data[key]
 	if record == nil || record.Len() == 0 {
-		return nil
+		return
 	}
 	length := record.Len()
 	start, end = handleIndex(length, start, end)
 	if start > end || start >= length {
-		return nil
+		return
 	}
 
 	mid := length >> 1
 	if end <= mid || end-mid < mid-start {
 		flag := 0
 		for p := record.Front(); p != nil && flag <= end; p, flag = p.Next(), flag+1 {
-			if flag >= start {
-				result = append(result, p.Value)
+			if flag >= start && fn != nil {
+				if fn(p.Value) {
+					break
+				}
 			}
 		}
 	} else {
 		flag := length - 1
 		for p := record.Back(); p != nil && flag >= start; p, flag = p.Prev(), flag-1 {
-			if flag <= end {
-				result = append(result, p.Value)
-			}
-		}
-		if len(result) > 0 {
-			for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
-				result[i], result[j] = result[j], result[i]
+			if flag <= end && fn != nil {
+				if fn(p.Value) {
+					break
+				}
 			}
 		}
 	}
-
-	return
 }
 
 // Trim 截断
@@ -296,7 +278,8 @@ func (hl *HashList) Len(key interface{}) (length int) {
 	return
 }
 
-func (hl *HashList) push(front bool, key interface{}, val ...interface{}) int {
+// 向队列中添加元素，返回实际添加的个数
+func (hl *HashList) push(front bool, key interface{}, val ...interface{}) (n int) {
 	record := hl.data[key]
 	if record == nil {
 		record = list.New()
@@ -307,29 +290,35 @@ func (hl *HashList) push(front bool, key interface{}, val ...interface{}) int {
 	case front == true:
 		for _, v := range val {
 			record.PushFront(v)
+			n++
 		}
 	default:
 		for _, v := range val {
 			record.PushBack(v)
+			n++
 		}
 	}
-	return record.Len()
+	return
 }
 
-func (hl *HashList) pop(front bool, key interface{}) interface{} {
+func (hl *HashList) pop(front bool, n int, key interface{}) (elements []interface{}) {
 	record := hl.data[key]
 	if record == nil || record.Len() == 0 {
 		return nil
 	}
-	var element *list.Element
 	switch {
 	case front:
-		element = record.Front()
+		for e := record.Front(); e != nil && len(elements) < n; e = e.Next() {
+			elements = append(elements, e.Value)
+			record.Remove(e)
+		}
 	default:
-		element = record.Back()
+		for e := record.Back(); e != nil && len(elements) < n; e = e.Prev() {
+			elements = append(elements, e.Value)
+			record.Remove(e)
+		}
 	}
-	record.Remove(element)
-	return element.Value
+	return
 }
 
 func handleIndex(length, start, end int) (int, int) {
@@ -364,7 +353,7 @@ func find(dataList *list.List, target interface{}) (result *list.Element) {
 		return
 	}
 	for ele := dataList.Front(); ele != nil; ele = ele.Next() {
-		if reflect.DeepEqual(ele.Value, target) {
+		if ele.Value == target {
 			result = ele
 			break
 		}
