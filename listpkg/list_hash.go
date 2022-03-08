@@ -3,6 +3,8 @@ package listpkg
 import (
 	"container/list"
 	"sync"
+
+	"github.com/pyihe/go-pkg/mathpkg"
 )
 
 type HashList struct {
@@ -103,8 +105,8 @@ func (hl *HashList) RInsert(key interface{}, mark interface{}, val ...interface{
 	if pElement == nil {
 		return
 	}
-	for _, v := range val {
-		record.InsertAfter(v, pElement)
+	for i := len(val) - 1; i >= 0; i-- {
+		record.InsertAfter(val[i], pElement)
 		n += 1
 	}
 	return
@@ -213,7 +215,6 @@ func (hl *HashList) RangeFunc(key interface{}, start, end int, fn func(data inte
 	if start > end || start >= length {
 		return
 	}
-
 	mid := length >> 1
 	if end <= mid || end-mid < mid-start {
 		flag := 0
@@ -237,51 +238,38 @@ func (hl *HashList) RangeFunc(key interface{}, start, end int, fn func(data inte
 }
 
 // Trim 截断
-func (hl *HashList) Trim(key interface{}, start, end int) bool {
+func (hl *HashList) Trim(key interface{}, start, end int) (data []interface{}) {
 	hl.mu.Lock()
 	defer hl.mu.Unlock()
 
 	record := hl.data[key]
 	if record == nil || record.Len() <= 0 {
-		return false
+		return
 	}
 
 	length := record.Len()
 	start, end = handleIndex(length, start, end)
 
 	//start小于等于左边界，end大于等于右边界，不处理
-	if start <= 0 && end >= length-1 {
-		return false
-	}
-
-	//start大于end，或者start超出右边界，则直接将列表置空
 	if start > end || start >= length {
-		hl.data[key] = nil
-		delete(hl.data, key)
-		return true
+		return
 	}
 
-	startEle, endEle := index(record, start), index(record, end)
-	switch end-start+1 < (length >> 1) {
-	case true:
-		newList := list.New()
-		for p := startEle; p != endEle.Next(); p = p.Next() {
-			newList.PushBack(p.Value)
-		}
-		hl.data[key] = newList
-	default:
-		var ele []*list.Element
-		for p := record.Front(); p != startEle; p = p.Next() {
-			ele = append(ele, p)
-		}
-		for p := record.Back(); p != endEle; p = p.Prev() {
-			ele = append(ele, p)
-		}
-		for _, e := range ele {
-			record.Remove(e)
-		}
+	var temp = make([]*list.Element, 0, end-start)
+	var startEle, endEle = index(record, start), index(record, end)
+	for p := startEle; p != endEle.Next(); p = p.Next() {
+		temp = append(temp, p)
 	}
-	return true
+
+	data = make([]interface{}, 0, len(temp))
+	for _, d := range temp {
+		if d == nil {
+			continue
+		}
+		data = append(data, d.Value)
+		record.Remove(d)
+	}
+	return
 }
 
 func (hl *HashList) Len(key interface{}) (length int) {
@@ -319,34 +307,28 @@ func (hl *HashList) pop(front bool, n int, key interface{}) (elements []interfac
 	if record == nil || record.Len() == 0 {
 		return nil
 	}
+	var temp = make([]*list.Element, 0, n)
 	switch {
 	case front:
-		for e := record.Front(); e != nil && len(elements) < n; e = e.Next() {
-			elements = append(elements, e.Value)
-			record.Remove(e)
+		for e := record.Front(); e != nil && len(temp) < n; e = e.Next() {
+			temp = append(temp, e)
 		}
 	default:
-		for e := record.Back(); e != nil && len(elements) < n; e = e.Prev() {
-			elements = append(elements, e.Value)
-			record.Remove(e)
+		for e := record.Back(); e != nil && len(temp) < n; e = e.Prev() {
+			temp = append(temp, e)
 		}
+	}
+	elements = make([]interface{}, 0, len(temp))
+	for _, e := range temp {
+		elements = append(elements, e.Value)
+		record.Remove(e)
 	}
 	return
 }
 
 func handleIndex(length, start, end int) (int, int) {
-	if start < 0 {
-		start += length
-	}
-	if end < 0 {
-		end += length
-	}
-	if start < 0 {
-		start = 0
-	}
-	if end >= length {
-		end = length - 1
-	}
+	start = mathpkg.MaxInt(mathpkg.MinInt(start, length), 0)
+	end = mathpkg.MaxInt(mathpkg.MinInt(end, length), 0)
 	return start, end
 }
 
@@ -356,7 +338,10 @@ func validIndex(dataList *list.List, index int) (bool, int) {
 	}
 	n := dataList.Len()
 	if index < 0 {
-		index += n
+		index = 0
+	}
+	if index >= n {
+		index = n - 1
 	}
 	return index >= 0 && index < n, index
 }

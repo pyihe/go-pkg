@@ -25,15 +25,15 @@ func (array *ArrayList) LPush(elements ...interface{}) (n int) {
 		return
 	}
 	// 按顺序添加进队列，先进后出的顺序添加
-	if elementCount > 1 {
-		for i := 0; i < elementCount/2; i++ {
-			elements[i], elements[elementCount-i-1] = elements[elementCount-i-1], elements[i]
-		}
+	s := make([]interface{}, elementCount+len(array.data), elementCount+len(array.data))
+	for i := 0; i < elementCount; i++ {
+		s[i] = elements[elementCount-1-i]
 	}
 	array.mu.Lock()
-	array.data = append(elements, array.data...)
-	n = elementCount
+	copy(s[elementCount:], array.data)
+	array.data = s
 	array.mu.Unlock()
+	n = elementCount
 	return
 }
 
@@ -92,8 +92,8 @@ func (array *ArrayList) LInsert(mark int, val ...interface{}) (n int) {
 func (array *ArrayList) RPush(elements ...interface{}) (n int) {
 	array.mu.Lock()
 	array.data = append(array.data, elements...)
-	n = len(elements)
 	array.mu.Unlock()
+	n = len(elements)
 	return
 }
 
@@ -283,10 +283,9 @@ func (array *ArrayList) Trim(start, end int) (result []interface{}) {
 	defer array.mu.Unlock()
 
 	length := len(array.data)
-	start = mathpkg.MaxInt(mathpkg.MinInt(start, length), 0)
-	end = mathpkg.MaxInt(mathpkg.MinInt(end, length), 0)
+	start, end = handleIndex(length, start, end)
 	//start大于end，或者start超出右边界，则直接将列表置空
-	if start > end {
+	if start > end || start >= length {
 		return
 	}
 
