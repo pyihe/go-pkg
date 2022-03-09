@@ -6,12 +6,17 @@ import (
 
 // BubbleSort 冒泡排序，每次找出最小的值放在最前面
 func BubbleSort(data sort.Interface) {
-	count := data.Len()
-	for i := 0; i < count; i++ {
-		for j := 0; j < count-i-1; j++ {
-			if !data.Less(j, j+1) {
+	existSwap := false // 是否有发生了交换动作, 如果没有发生交换，证明数据已经有序了, 不需要在进行遍历比较
+	for i := 0; i < data.Len()-1; i++ {
+		temp := data.Len() - 1 - i
+		for j := 0; j < temp; j++ {
+			if data.Less(j+1, j) {
 				data.Swap(j, j+1)
+				existSwap = true
 			}
+		}
+		if !existSwap {
+			break
 		}
 	}
 }
