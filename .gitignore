@@ -16,3 +16,4 @@
 
 *_test.go
 .idea/
+.DS_Store
