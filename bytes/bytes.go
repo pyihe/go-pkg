@@ -22,8 +22,8 @@ func String(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-// BytesEqual 判断两个字节切片每个元素是否相等
-func BytesEqual(a, b []byte) bool {
+// Equal 判断两个字节切片每个元素是否相等
+func Equal(a, b []byte) bool {
 	aLen, bLen := len(a), len(b)
 	if aLen != bLen {
 		return false
@@ -61,12 +61,34 @@ func Reverse(b []byte) {
 	}
 }
 
-// Remove 从b中删除ele
-func Remove(b []byte, ele byte) {
-	for i := range b {
-		if ele == b[i] {
-			b = append(b[:i], b[i+1:]...)
-			break
+// Remove 对于eles的每个元素，只删除一次
+func Remove(b *[]byte, eles ...byte) {
+	if b == nil || len(*b) == 0 {
+		return
+	}
+	for _, e := range eles {
+		for i := 0; i < len(*b); {
+			if e == (*b)[i] {
+				copy((*b)[i:], (*b)[i+1:])
+				(*b)[len(*b)-1] = 0
+				*b = (*b)[:len(*b)-1]
+				break
+			} else {
+				i++
+			}
+		}
+	}
+}
+
+// RemoveAll 删除所有的ele
+func RemoveAll(b *[]byte, eles ...byte) {
+	for _, e := range eles {
+		for i := 0; i < len(*b); {
+			if (*b)[i] == e {
+				*b = append((*b)[:i], (*b)[i+1:]...)
+			} else {
+				i++
+			}
 		}
 	}
 }

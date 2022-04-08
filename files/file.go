@@ -1,6 +1,10 @@
 package files
 
-import "os"
+import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+)
 
 // NewPath 判断目录是否存在，如果不存在，则新建一个目录
 func NewPath(targetPath string) error {
@@ -13,4 +17,14 @@ func NewPath(targetPath string) error {
 		}
 	}
 	return nil
+}
+
+// LoadJSONFile 加载JSON文件
+func LoadJSONFile(file string, dst interface{}) error {
+	content, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(content, dst)
+	return err
 }

@@ -13,4 +13,5 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.3.4 // indirect
 	go.uber.org/zap v1.18.1 // indirect
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
+	gopkg.in/ini.v1 v1.66.4 // indirect
 )

@@ -82,8 +82,8 @@ func IsEmpty(s string) bool {
 	return s == ""
 }
 
-// SliceEqual 判断两个字符串切片值是否相等
-func SliceEqual(a, b []string) bool {
+// Equal 判断两个字符串切片值是否相等
+func Equal(a, b []string) bool {
 	aLen, bLen := len(a), len(b)
 	if aLen != bLen {
 		return false
@@ -122,11 +122,35 @@ func Reverse(s []string) {
 }
 
 // Remove 从s中删除第一个ele
-func Remove(ele string, s []string) {
-	for i := range s {
-		if s[i] == ele {
-			s = append(s[:i], s[i+1:]...)
-			break
+func Remove(s *[]string, eles ...string) {
+	if s == nil || len(*s) == 0 {
+		return
+	}
+	for _, e := range eles {
+		for i := 0; i < len(*s); {
+			if e == (*s)[i] {
+				copy((*s)[i:], (*s)[i+1:])
+				(*s)[len(*s)-1] = ""
+				*s = (*s)[:len(*s)-1]
+				break
+			} else {
+				i++
+			}
+		}
+	}
+}
+
+// RemoveAll 删除所有的eles
+func RemoveAll(s *[]string, eles ...string) {
+	for _, e := range eles {
+		for i := 0; i < len(*s); {
+			if (*s)[i] == e {
+				copy((*s)[i:], (*s)[i+1:])
+				(*s)[len(*s)-1] = ""
+				*s = (*s)[:len(*s)-1]
+			} else {
+				i++
+			}
 		}
 	}
 }
