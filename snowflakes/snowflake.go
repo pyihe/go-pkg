@@ -1,7 +1,6 @@
 package snowflakes
 
 import (
-	"errors"
 	"strconv"
 	"sync"
 	"time"
@@ -36,38 +35,26 @@ type builder struct {
 	number    int64 // 当前毫秒已经生成的id序列号(从0开始累加) 1毫秒内最多生成4096个ID
 }
 
-// 实例化一个工作节点
-func NewWorker(opts ...Option) Worker {
+func NewWorker(workerId int64) Worker {
+	assertWorkId(workerId)
 	b := &builder{
-		epoch: time.Now().Unix() * 1000,
+		epoch:    time.Now().Unix() * 1000,
+		workerId: workerId,
 	}
-	for _, opt := range opts {
-		if err := opt(b); err != nil {
-			panic(err)
-		}
-	}
-
 	return b
 }
 
-func WithWorkerId(workerId int64) Option {
-	return func(b *builder) error {
-		if workerId < 0 || workerId > nodeMax {
-			return errors.New("work id cannot more than 1024")
-		}
-		b.workerId = workerId
-		return nil
+func assertWorkId(workerId int64) {
+	if workerId < 0 || workerId > nodeMax {
+		panic("work id cannot more than 1024")
 	}
 }
 
-func (w *builder) GetInt64() int64 {
+func (w *builder) GetInt64() (id int64) {
 	w.mu.Lock()
-	defer w.mu.Unlock()
-
 	now := time.Now().UnixNano() / 1e6
 	if w.timestamp == now {
 		w.number++
-
 		if w.number > numberMax {
 			for now <= w.timestamp {
 				now = time.Now().UnixNano() / 1e6
@@ -77,8 +64,9 @@ func (w *builder) GetInt64() int64 {
 		w.number = 0
 		w.timestamp = now
 	}
-
-	return (now-w.epoch)<<timeShift | (w.workerId << workerShift) | (w.number)
+	id = (now-w.epoch)<<timeShift | (w.workerId << workerShift) | (w.number)
+	w.mu.Unlock()
+	return
 }
 
 func (w *builder) GetString() string {

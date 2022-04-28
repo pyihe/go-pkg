@@ -10,8 +10,10 @@ import (
 )
 
 type Packet interface {
-	Packet(message Message) (data []byte, err error)
-	UnPacket(reader io.Reader, message Message) error
+	HeaderLen() int
+	MaxMessageLen() int
+	Packet(message []byte) (data []byte, err error)
+	UnPacket(reader io.Reader) ([]byte, error)
 }
 
 type Message interface {
@@ -25,8 +27,11 @@ type packet struct {
 }
 
 func NewPacket(headerLen, maxDataLen int) Packet {
-	if headerLen <= 0 {
+	if maths.MaxInt(0, headerLen) == 0 {
 		headerLen = 4
+	}
+	if maths.MaxInt(0, maxDataLen) == 0 {
+		maxDataLen = 2046
 	}
 	return &packet{
 		headerLen:  headerLen,
@@ -34,35 +39,36 @@ func NewPacket(headerLen, maxDataLen int) Packet {
 	}
 }
 
+func (p *packet) HeaderLen() int {
+	if p != nil {
+		return p.headerLen
+	}
+	return -1
+}
+
+func (p *packet) MaxMessageLen() int {
+	if p != nil {
+		return p.maxDataLen
+	}
+	return -1
+}
+
 // Packet 封包
-func (p *packet) Packet(message Message) (data []byte, err error) {
-	if message == nil {
-		err = errors.New("nil Message")
-		return
-	}
-	mBytes, err := message.Marshal()
-	if err != nil {
-		return
-	}
-	if p.maxDataLen > 0 && len(mBytes) > p.maxDataLen {
+func (p *packet) Packet(message []byte) (data []byte, err error) {
+	if p.maxDataLen > 0 && len(message) > p.maxDataLen {
 		err = errors.New("packet: message is too large")
 		return
 	}
-	data = make([]byte, p.headerLen+len(mBytes))
+	data = make([]byte, p.headerLen+len(message))
 	// 头headerLen个字节存放数据长度
-	binary.LittleEndian.PutUint32(data[:4], uint32(len(mBytes)))
+	binary.LittleEndian.PutUint32(data[:4], uint32(len(message)))
 	// 将数据写进剩余的字节
-	copy(data[4:], mBytes)
+	copy(data[4:], message)
 	return
 }
 
 // UnPacket 拆包
-func (p *packet) UnPacket(reader io.Reader, message Message) (err error) {
-	if message == nil {
-		err = errors.New("nil Message")
-		return
-	}
-
+func (p *packet) UnPacket(reader io.Reader) (b []byte, err error) {
 	// 先读取header中的数据长度
 	header := make([]byte, p.headerLen)
 	n, err := io.ReadFull(reader, header)
@@ -84,8 +90,7 @@ func (p *packet) UnPacket(reader io.Reader, message Message) (err error) {
 	data := make([]byte, dataLen)
 	n, err = io.ReadFull(reader, data)
 	if err == nil {
-		// 反序列化数据到对应的结构体中
-		err = message.Unmarshal(data[:n])
+		b = data[:n]
 	}
 	return
 }

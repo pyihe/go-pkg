@@ -111,7 +111,7 @@ func NewPool(opts ...InitOptions) (RedisPool, error) {
 		defaultPool.db = 1
 	}
 	if defaultPool.net == "" {
-		defaultPool.net = "tcp"
+		defaultPool.net = "tcps"
 	}
 	defaultPool.p = &redis.Pool{
 		Dial: func() (conn redis.Conn, e error) {

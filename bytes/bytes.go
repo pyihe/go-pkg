@@ -9,7 +9,7 @@ import (
 type ByteBuffer = bytebufferpool.ByteBuffer
 
 var (
-	Get = bytebufferpool.Get()
+	Get = bytebufferpool.Get
 	Put = func(b *ByteBuffer) {
 		if b != nil {
 			bytebufferpool.Put(b)
