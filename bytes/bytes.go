@@ -1,8 +1,10 @@
 package bytes
 
 import (
+	"fmt"
 	"unsafe"
 
+	"github.com/pyihe/go-pkg/errors"
 	"github.com/valyala/bytebufferpool"
 )
 
@@ -16,6 +18,37 @@ var (
 		}
 	}
 )
+
+func Int64(b []byte) (v int64, err error) {
+	if len(b) == 0 {
+		err = errors.New("empty b")
+		return
+	}
+	negative := false
+	if b[0] == '-' || b[1] == '+' {
+		if b[0] == '-' {
+			negative = true
+		}
+		b = b[1:]
+	}
+	if len(b) == 0 {
+		err = errors.New("no convertable byte")
+		return
+	}
+
+	for _, e := range b {
+		if e < '0' || e > '9' {
+			err = errors.New(fmt.Sprintf("illegal byte: %v", e))
+			return
+		}
+		v *= 10
+		v += int64(e - '0')
+	}
+	if negative {
+		v = -v
+	}
+	return
+}
 
 // String []byte转换为string
 func String(b []byte) string {
