@@ -62,3 +62,7 @@ func Abs(n int) int {
 	}
 	return n
 }
+
+func Even(m int) bool {
+	return m%2 == 0
+}

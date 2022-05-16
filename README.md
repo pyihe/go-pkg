@@ -16,7 +16,6 @@
 |[nets](https://github.com/pyihe/go-pkg/tree/master/nets)|网络相关|
 |[prt](https://github.com/pyihe/go-pkg/tree/master/ptr)|基础数据类型指针|
 |[rands](https://github.com/pyihe/go-pkg/tree/master/rands)|随机函数相关|
-|[redis](https://github.com/pyihe/go-pkg/tree/master/redis)|redis相关|
 |[snowflakes](https://github.com/pyihe/go-pkg/tree/master/snowflakes)|snowflake相关|
 |[sorts](https://github.com/pyihe/go-pkg/tree/master/sorts)|排序相关|
 |[strings](https://github.com/pyihe/go-pkg/tree/master/strings)|字符串相关|

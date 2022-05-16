@@ -1,5 +1,7 @@
 package errors
 
+import "fmt"
+
 type Error struct {
 	err  string
 	code int32
@@ -16,7 +18,10 @@ func New(err string, codes ...int32) error {
 }
 
 func (e *Error) Error() (err string) {
-	return e.err
+	if e.code == 0 {
+		return e.err
+	}
+	return fmt.Sprintf("%d-%s", e.code, e.err)
 }
 
 func (e *Error) Code() int32 {
