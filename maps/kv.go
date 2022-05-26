@@ -13,19 +13,38 @@ func NewParam() Param {
 	return make(Param)
 }
 
-func (p Param) Add(key string, value interface{}) {
+func (p Param) Set(key string, value interface{}) {
 	p[key] = value
 }
 
-func (p Param) Delete(key string) (ok bool) {
-	_, ok = p[key]
+func (p Param) SetNX(key string, value interface{}) {
+	if _, exist := p[key]; !exist {
+		p[key] = value
+	}
+}
+
+func (p Param) MSet(ps map[string]interface{}) {
+	for k, v := range ps {
+		p[k] = v
+	}
+}
+
+func (p Param) Del(key string) {
 	delete(p, key)
-	return
 }
 
 func (p Param) Get(key string) (value interface{}, ok bool) {
 	value, ok = p[key]
 	return
+}
+
+func (p Param) MGet(keys ...string) []interface{} {
+	result := make([]interface{}, 0, len(keys))
+	for _, k := range keys {
+		v := p[k]
+		result = append(result, v)
+	}
+	return result
 }
 
 func (p Param) Range(fn func(key string, value interface{}) (breakOut bool)) {
