@@ -25,7 +25,7 @@ func Int64(b []byte) (v int64, err error) {
 		return
 	}
 	negative := false
-	if b[0] == '-' || b[1] == '+' {
+	if b[0] == '-' || b[0] == '+' {
 		if b[0] == '-' {
 			negative = true
 		}
