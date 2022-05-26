@@ -101,6 +101,8 @@ func (p Param) GetString(key string) (s string, ok bool) {
 		s = strconv.FormatFloat(v, 'f', -1, 64)
 	case time.Time:
 		s = v.Format(time.RFC3339)
+	case nil:
+		s = ""
 	default:
 		s = fmt.Sprint(v)
 	}
@@ -147,6 +149,8 @@ func (p Param) GetInt64(key string) (n int64, ok bool) {
 		n = int64(v)
 	case time.Time:
 		n = v.Unix()
+	case nil:
+		n = 0
 	}
 	return
 }
