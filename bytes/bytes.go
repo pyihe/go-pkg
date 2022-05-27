@@ -21,7 +21,6 @@ var (
 
 func Int64(b []byte) (v int64, err error) {
 	if len(b) == 0 {
-		err = errors.New("empty b")
 		return
 	}
 	negative := false
