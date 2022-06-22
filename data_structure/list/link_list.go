@@ -1,7 +1,5 @@
 package list
 
-import "fmt"
-
 type node struct {
 	data interface{}
 	next *node
@@ -15,20 +13,6 @@ type singleList struct {
 
 func newSingleList() *singleList {
 	return &singleList{}
-}
-
-func (sl *singleList) String() string {
-	result := ""
-	p := sl.head
-	for p != nil {
-		result += fmt.Sprintf("%v-", p.data)
-		p = p.next
-	}
-	return result
-}
-
-func (sl *singleList) IsEmpty() bool {
-	return sl.length == 0
 }
 
 func (sl *singleList) Len() int {

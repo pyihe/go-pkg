@@ -18,10 +18,6 @@ func newSliceList() Lister {
 	return sl
 }
 
-func (s *sliceList) IsEmpty() bool {
-	return s.length == 0
-}
-
 func (s *sliceList) Len() int {
 	return s.length
 }

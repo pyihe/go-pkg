@@ -8,7 +8,6 @@ var (
 
 // Lister 线性表
 type Lister interface {
-	IsEmpty() bool                         // 线性表是否为空
 	Len() int                              // 返回线性表长度
 	Reset()                                // 重置线性表
 	Get(pos int) (interface{}, bool)       // 获取某个位置的元素, 注意pos从1开始, 而不是0开始
