@@ -9,9 +9,7 @@ import (
 	"github.com/pyihe/go-pkg/maths"
 )
 
-type Packet interface {
-	HeaderLen() int
-	MaxMessageLen() int
+type IPacket interface {
 	Packet(message []byte) (data []byte, err error)
 	UnPacket(reader io.Reader) ([]byte, error)
 }
@@ -21,41 +19,36 @@ type Message interface {
 	Unmarshal([]byte) error
 }
 
-type packet struct {
-	headerLen  int // 头部长度
-	maxDataLen int // 数据最大长度
+type Packet struct {
+	headerLen   int  // 头部长度
+	dataSize    int  // 数据最大长度
+	initialized bool // 是否已经初始化
 }
 
-func NewPacket(headerLen, maxDataLen int) Packet {
+func NewPacket(headerLen, dataMaxSize int) *Packet {
 	if maths.MaxInt(0, headerLen) == 0 {
 		headerLen = 4
 	}
-	if maths.MaxInt(0, maxDataLen) == 0 {
-		maxDataLen = 2046
+	if maths.MaxInt(0, dataMaxSize) == 0 {
+		dataMaxSize = 4096
 	}
-	return &packet{
-		headerLen:  headerLen,
-		maxDataLen: maths.MaxInt(0, maxDataLen),
+	return &Packet{
+		headerLen:   headerLen,
+		dataSize:    maths.MaxInt(0, dataMaxSize),
+		initialized: true,
 	}
 }
 
-func (p *packet) HeaderLen() int {
-	if p != nil {
-		return p.headerLen
+func (p *Packet) assert() {
+	if !p.initialized {
+		panic("Packet must be initialize by NewPacket")
 	}
-	return -1
-}
-
-func (p *packet) MaxMessageLen() int {
-	if p != nil {
-		return p.maxDataLen
-	}
-	return -1
 }
 
 // Packet 封包
-func (p *packet) Packet(message []byte) (data []byte, err error) {
-	if p.maxDataLen > 0 && len(message) > p.maxDataLen {
+func (p *Packet) Packet(message []byte) (data []byte, err error) {
+	p.assert()
+	if p.dataSize > 0 && len(message) > p.dataSize {
 		err = errors.New("packet: message is too large")
 		return
 	}
@@ -68,7 +61,8 @@ func (p *packet) Packet(message []byte) (data []byte, err error) {
 }
 
 // UnPacket 拆包
-func (p *packet) UnPacket(reader io.Reader) (b []byte, err error) {
+func (p *Packet) UnPacket(reader io.Reader) (b []byte, err error) {
+	p.assert()
 	// 先读取header中的数据长度
 	header := make([]byte, p.headerLen)
 	n, err := io.ReadFull(reader, header)
@@ -81,7 +75,7 @@ func (p *packet) UnPacket(reader io.Reader) (b []byte, err error) {
 	}
 
 	// 判断数据长度是否合法
-	if p.maxDataLen > 0 && dataLen > int32(p.maxDataLen) {
+	if p.dataSize > 0 && dataLen > int32(p.dataSize) {
 		err = errors.New("unpacket: message is too large")
 		return
 	}
