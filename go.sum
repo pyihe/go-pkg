@@ -19,6 +19,9 @@ github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/pyihe/go-pkg v0.0.0-20220224094120-cf4f43050bfb/go.mod h1:zYn7jzKOjtr8piG9Ull9EihUroL130Z1wKljPVwAQQU=
+github.com/pyihe/plogs v0.0.0-20220307031234-a65833e6fdba h1:JCx43IxUo7V97ChLhYuYebRk6N+UXB/Bp0cWrWu0uTU=
+github.com/pyihe/plogs v0.0.0-20220307031234-a65833e6fdba/go.mod h1:semn1vQECwBXpUlvW3RFB37NTbA4rMJXEXoIcrNXHqM=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

@@ -62,6 +62,9 @@ func (p *Packet) Packet(message []byte) (data []byte, err error) {
 
 // UnPacket 拆包
 func (p *Packet) UnPacket(reader io.Reader) (b []byte, err error) {
+	if reader == nil {
+		return
+	}
 	p.assert()
 	// 先读取header中的数据长度
 	header := make([]byte, p.headerLen)
