@@ -1,4 +1,4 @@
-package json
+package jsonserialize
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package msgpack
+package msgpackserialize
 
 import (
 	"github.com/pyihe/go-pkg/serialize"

@@ -1,4 +1,4 @@
-package protobuffer
+package protoserialize
 
 import (
 	"fmt"
