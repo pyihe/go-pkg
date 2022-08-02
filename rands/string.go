@@ -33,23 +33,9 @@ func String(n int) (s string) {
 
 // SafeString 线性安全的随机生成字符串
 func SafeString(n int) (s string) {
-	if n > 0 {
-		var b = make([]byte, n)
-		sMu.Lock()
-		for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
-			if remain == 0 {
-				cache, remain = src.Int63(), letterIdxMax
-			}
-			if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
-				b[i] = letterBytes[idx]
-				i--
-			}
-			cache >>= letterIdxBits
-			remain--
-		}
-		sMu.Unlock()
-		s = bytes.String(b)
-	}
+	sMu.Lock()
+	String(n)
+	sMu.Unlock()
 	return
 }
 
