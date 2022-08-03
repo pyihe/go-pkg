@@ -1,6 +1,9 @@
 package times
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Timer interface {
 	Remain(unit string) int32
@@ -65,4 +68,16 @@ func (m *myTimer) Every(t time.Duration, handle func()) {
 			handle()
 		}
 	}()
+}
+
+func Sleep(ctx context.Context, dur time.Duration) error {
+	timer := time.NewTimer(dur)
+	defer timer.Stop()
+
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
