@@ -39,20 +39,17 @@ func SafeString(n int) (s string) {
 	return
 }
 
-// ShuffleBytes shuffle 随机算法
-func ShuffleBytes(data []byte) {
-	count := len(data)
-	for i := 0; i < count; i++ {
-		pos := rad.Intn(count-i) + i
-		data[i], data[pos] = data[pos], data[i]
+func Shuffle(n int, swap func(i, j int)) {
+	if n < 0 {
+		panic("invalid n")
 	}
-}
-
-// ShuffleInt shuffle int
-func ShuffleInt(data []int) {
-	count := len(data)
-	for i := 0; i < count; i++ {
-		pos := rad.Intn(count-i) + i
-		data[i], data[pos] = data[pos], data[i]
+	i := n - 1
+	for ; i > 1<<31-1-1; i-- {
+		j := int(rad.Int63n(int64(i + 1)))
+		swap(i, j)
+	}
+	for ; i > 0; i-- {
+		j := int(rad.Int31n(int32(i + 1)))
+		swap(i, j)
 	}
 }
