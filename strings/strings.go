@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"unsafe"
+
+	"github.com/pyihe/go-pkg/bytes"
 )
 
 // Bytes string转换为[]byte
@@ -202,4 +204,54 @@ func FilterRepeatByMap(slc []string) []string {
 		}
 	}
 	return result
+}
+
+func ToLower(s string) string {
+	if isLower(s) {
+		return s
+	}
+	b := make([]byte, len(s))
+	for i := range s {
+		c := s[i]
+		if c >= 'A' && c <= 'Z' {
+			c += 'a' - 'A'
+		}
+		b[i] = c
+	}
+	return bytes.String(b)
+}
+
+func isLower(s string) bool {
+	for i := range s {
+		c := s[i]
+		if c >= 'A' && c <= 'Z' {
+			return false
+		}
+	}
+	return true
+}
+
+func ToUpper(s string) string {
+	if isUpper(s) {
+		return s
+	}
+	b := make([]byte, len(s))
+	for i := range s {
+		c := s[i]
+		if c >= 'a' && c <= 'z' {
+			c -= 'a' - 'A'
+		}
+		b[i] = c
+	}
+	return bytes.String(b)
+}
+
+func isUpper(s string) bool {
+	for i := range s {
+		c := s[i]
+		if c >= 'a' && c <= 'z' {
+			return false
+		}
+	}
+	return true
 }
