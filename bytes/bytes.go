@@ -5,18 +5,6 @@ import (
 	"unsafe"
 
 	"github.com/pyihe/go-pkg/errors"
-	"github.com/valyala/bytebufferpool"
-)
-
-type ByteBuffer = bytebufferpool.ByteBuffer
-
-var (
-	Get = bytebufferpool.Get
-	Put = func(b *ByteBuffer) {
-		if b != nil {
-			bytebufferpool.Put(b)
-		}
-	}
 )
 
 func Int64(b []byte) (v int64, err error) {
