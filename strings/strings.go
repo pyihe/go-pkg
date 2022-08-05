@@ -174,38 +174,6 @@ func MaxSubStrLen(str string) int {
 	return maxLen
 }
 
-// FilterRepeatBySlice 元素去重
-func FilterRepeatBySlice(slc []string) []string {
-	var result []string
-	for i := range slc {
-		flag := true
-		for j := range result {
-			if slc[i] == result[j] {
-				flag = false
-				break
-			}
-		}
-		if flag {
-			result = append(result, slc[i])
-		}
-	}
-	return result
-}
-
-// FilterRepeatByMap 通过map元素去重
-func FilterRepeatByMap(slc []string) []string {
-	var result []string
-	tempMap := make(map[string]byte, 0)
-	for _, e := range slc {
-		l := len(tempMap)
-		tempMap[e] = 0
-		if len(tempMap) != l {
-			result = append(result, e)
-		}
-	}
-	return result
-}
-
 func ToLower(s string) string {
 	if isLower(s) {
 		return s
@@ -219,16 +187,6 @@ func ToLower(s string) string {
 		b[i] = c
 	}
 	return bytes.String(b)
-}
-
-func isLower(s string) bool {
-	for i := range s {
-		c := s[i]
-		if c >= 'A' && c <= 'Z' {
-			return false
-		}
-	}
-	return true
 }
 
 func ToUpper(s string) string {
@@ -246,12 +204,45 @@ func ToUpper(s string) string {
 	return bytes.String(b)
 }
 
-func isUpper(s string) bool {
-	for i := range s {
-		c := s[i]
-		if c >= 'a' && c <= 'z' {
-			return false
+func Add(s []string, a string) []string {
+	return append(s, a)
+}
+
+func AddWithDistinct(s []string, a string) []string {
+	for _, e := range s {
+		if e == a {
+			return s
 		}
 	}
-	return true
+	return Add(s, a)
+}
+
+func Union(s []string, a []string) []string {
+	for _, ae := range a {
+		found := false
+		for _, se := range s {
+			if ae == se {
+				found = true
+				break
+			}
+		}
+		if !found {
+			s = append(s, ae)
+		}
+	}
+	return s
+}
+
+// Unique 字符串切片去重
+func Unique(s []string) (r []string) {
+loop:
+	for _, se := range s {
+		for _, rv := range r {
+			if se == rv {
+				continue loop
+			}
+		}
+		r = append(r, se)
+	}
+	return
 }
