@@ -1,4 +1,4 @@
-package utils
+package tools
 
 import (
 	"bytes"
@@ -28,8 +28,7 @@ func CheckPhoneFormat(phone string) bool {
 	return phoneChecker.MatchString(phone)
 }
 
-//如果监听到系统中断信号，则执行onNotify()
-func Notify(onNotify func()) {
+func Wait(callbacks ...func()) {
 	//SIGHUP		终端控制进程结束(终端连接断开)
 	//SIGQUIT		用户发送QUIT字符(Ctrl+/)触发
 	//SIGTERM		结束程序(可以被捕获、阻塞或忽略)
@@ -41,10 +40,14 @@ func Notify(onNotify func()) {
 		s := <-ch
 		switch s {
 		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGSTOP, syscall.SIGINT, syscall.SIGHUP:
-			if onNotify == nil {
+			if len(callbacks) == 0 {
 				return
 			}
-			onNotify()
+			for _, fn := range callbacks {
+				if fn != nil {
+					fn()
+				}
+			}
 		default:
 			return
 		}
