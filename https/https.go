@@ -14,11 +14,11 @@ type TLSClient struct {
 	client      *http.Client
 	ca          *x509.CertPool
 	certificate tls.Certificate
-	encoder     serialize.Serializer
+	encoder     serialize.Codec
 }
 
 // NewTLSClient 创建TLS客户端
-func NewTLSClient(caCrt, clientCrt, clientKey string, encoder serialize.Serializer) *TLSClient {
+func NewTLSClient(caCrt, clientCrt, clientKey string, encoder serialize.Codec) *TLSClient {
 	var err error
 	c := &TLSClient{
 		encoder: encoder,
@@ -79,7 +79,7 @@ func (h *TLSClient) GetWithObj(url string, obj interface{}) error {
 		return ErrInvalidEncoder
 	}
 
-	return h.encoder.Decode(data, obj)
+	return h.encoder.Unmarshal(data, obj)
 }
 
 // Post POST请求
@@ -102,7 +102,7 @@ func (h *TLSClient) PostWithObj(url, contentType string, body io.Reader, obj int
 	if h.encoder == nil {
 		return ErrInvalidEncoder
 	}
-	return h.encoder.Decode(data, obj)
+	return h.encoder.Unmarshal(data, obj)
 }
 
 func loadCA(caFile string) (*x509.CertPool, error) {

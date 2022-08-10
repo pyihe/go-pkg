@@ -34,12 +34,12 @@ func Get(client *http.Client, url string) ([]byte, error) {
 }
 
 // GetWithObj 发起get请求，并将结果反序列化到指定obj中
-func GetWithObj(client *http.Client, url string, encoder serialize.Serializer, obj interface{}) error {
+func GetWithObj(client *http.Client, url string, encoder serialize.Codec, obj interface{}) error {
 	data, err := Get(client, url)
 	if err != nil {
 		return err
 	}
-	err = encoder.Decode(data, obj)
+	err = encoder.Unmarshal(data, obj)
 	return err
 }
 
@@ -61,10 +61,10 @@ func Post(client *http.Client, url string, contentType string, body io.Reader) (
 }
 
 // PostWithObj 发起POST请求并将结果发序列化到指定obj
-func PostWithObj(client *http.Client, url string, contentType string, body io.Reader, encoder serialize.Serializer, v interface{}) error {
+func PostWithObj(client *http.Client, url string, contentType string, body io.Reader, encoder serialize.Codec, v interface{}) error {
 	data, err := Post(client, url, contentType, body)
 	if err != nil {
 		return err
 	}
-	return encoder.Decode(data, v)
+	return encoder.Unmarshal(data, v)
 }
