@@ -27,3 +27,7 @@ func (e *Error) Error() (err string) {
 func (e *Error) Code() int32 {
 	return e.code
 }
+
+func (e *Error) Message() string {
+	return e.err
+}
