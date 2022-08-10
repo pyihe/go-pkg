@@ -3,6 +3,7 @@ package http_api
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pyihe/go-pkg/errors"
@@ -85,7 +86,10 @@ func (s *HttpServer) AddHandler(handler APIHandler) {
 }
 
 func (s *HttpServer) Stop() error {
-	if err := s.server.Shutdown(context.Background()); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := s.server.Shutdown(ctx); err != nil {
 		return err
 	}
 	s.wg.Wait()
