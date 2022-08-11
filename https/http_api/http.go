@@ -17,8 +17,8 @@ const (
 
 type IRouter = gin.IRouter
 
-// Response 回复格式
-type Response struct {
+// response 回复格式
+type response struct {
 	Code    int32       `json:"code,omitempty"`
 	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
@@ -47,7 +47,6 @@ type HttpServer struct {
 
 func NewHTTPServer(config Config) *HttpServer {
 	engine := gin.Default()
-	engine.Use(gin.Recovery())
 	engine.Use(MidCORS())
 
 	s := &HttpServer{}
@@ -62,15 +61,11 @@ func NewHTTPServer(config Config) *HttpServer {
 
 func (s *HttpServer) Run() {
 	s.wg.Wrap(func() {
-		var err error
 		var config = s.config
 		if config.CertFile != "" && config.KeyFile != "" {
-			err = s.server.ListenAndServeTLS(config.CertFile, config.KeyFile)
+			s.server.ListenAndServeTLS(config.CertFile, config.KeyFile)
 		} else {
 			s.server.ListenAndServe()
-		}
-		if err != nil {
-			panic(err)
 		}
 	})
 }
@@ -111,8 +106,8 @@ func MidCORS() gin.HandlerFunc {
 	}
 }
 
-func JSON(c *gin.Context, status int, err error, data interface{}) {
-	rsp := &Response{}
+func IndentedJSON(c *gin.Context, status int, err error, data interface{}) {
+	rsp := &response{}
 	if err != nil {
 		switch err.(type) {
 		case *errors.Error:
@@ -128,7 +123,7 @@ func JSON(c *gin.Context, status int, err error, data interface{}) {
 		rsp.Message = "SUCCESS"
 		rsp.Data = data
 	}
-	c.JSON(status, rsp)
+	c.IndentedJSON(status, rsp)
 }
 
 func Wrap(handler func(*gin.Context) (interface{}, error)) func(*gin.Context) {
@@ -139,7 +134,7 @@ func Wrap(handler func(*gin.Context) (interface{}, error)) func(*gin.Context) {
 			if err != nil {
 				status = http.StatusBadRequest
 			}
-			JSON(c, status, err, result)
+			IndentedJSON(c, status, err, result)
 		}
 	}
 }
