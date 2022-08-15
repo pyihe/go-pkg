@@ -7,6 +7,14 @@ import (
 	"github.com/pyihe/go-pkg/errors"
 )
 
+func Copy(src []byte) (b []byte) {
+	if len(src) > 0 {
+		b = make([]byte, len(src))
+		copy(b, src)
+	}
+	return
+}
+
 func Int64(b []byte) (v int64, err error) {
 	if len(b) == 0 {
 		return

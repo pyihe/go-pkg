@@ -57,7 +57,7 @@ func newZapLogger(opts ...LogOption) (Logger, error) {
 
 	encoder := getJSONEncoder()
 
-	op := zap.Fields(zap.String("ip", nets.GetLocalIP()), zap.String("app", zlogger.name))
+	op := zap.Fields(zap.String("ip", nets.LocalIP()), zap.String("app", zlogger.name))
 	options = append(options, op)
 
 	allLevel := zap.LevelEnablerFunc(func(lv zapcore.Level) bool {
