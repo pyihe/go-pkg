@@ -35,11 +35,11 @@ func Wait(callbacks ...func()) {
 	//SIGINT		用户发送INTR字符(Ctrl+C)触发
 	//SIGSTOP		停止进程(不能被捕获、阻塞或忽略)
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGSTOP, syscall.SIGINT)
+	signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		s := <-ch
 		switch s {
-		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGSTOP, syscall.SIGINT, syscall.SIGHUP:
+		case syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP:
 			if len(callbacks) == 0 {
 				return
 			}
