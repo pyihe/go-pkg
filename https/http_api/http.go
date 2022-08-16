@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pyihe/go-pkg/errors"
 	"github.com/pyihe/go-pkg/syncs"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 const (
@@ -31,6 +33,7 @@ type APIHandler interface {
 
 // Config 服务配置项
 type Config struct {
+	Swagger     bool   // 是否需要Swagger文档
 	Name        string // 服务名称
 	Addr        string // 服务地址
 	RoutePrefix string // 路由前缀
@@ -56,6 +59,11 @@ func NewHTTPServer(config Config) *HttpServer {
 		Addr:    config.Addr,
 		Handler: engine,
 	}
+
+	if config.Swagger {
+		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+
 	return s
 }
 
@@ -106,7 +114,11 @@ func MidCORS() gin.HandlerFunc {
 	}
 }
 
-func IndentedJSON(c *gin.Context, status int, err error, data interface{}) {
+func IndentedJSON(c *gin.Context, err error, data interface{}) {
+	status := http.StatusOK
+	if err != nil {
+		status = http.StatusBadRequest
+	}
 	rsp := &response{}
 	if err != nil {
 		switch err.(type) {
@@ -126,15 +138,11 @@ func IndentedJSON(c *gin.Context, status int, err error, data interface{}) {
 	c.IndentedJSON(status, rsp)
 }
 
-func Wrap(handler func(*gin.Context) (interface{}, error)) func(*gin.Context) {
+func WrapFunc(handler func(*gin.Context) (interface{}, error)) func(*gin.Context) {
 	return func(c *gin.Context) {
 		if handler != nil {
 			result, err := handler(c)
-			var status = http.StatusOK
-			if err != nil {
-				status = http.StatusBadRequest
-			}
-			IndentedJSON(c, status, err, result)
+			IndentedJSON(c, err, result)
 		}
 	}
 }
