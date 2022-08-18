@@ -12,11 +12,6 @@ import (
 	"github.com/swaggo/gin-swagger"
 )
 
-const (
-	successCode      = http.StatusOK
-	defaultErrorCode = 100000
-)
-
 type IRouter = gin.IRouter
 
 // response 回复格式
@@ -33,7 +28,7 @@ type APIHandler interface {
 
 // Config 服务配置项
 type Config struct {
-	Swagger     bool   // 是否需要Swagger文档
+	SwaggerURL  string // swagger文档地址，如果填写则开启swagger
 	Name        string // 服务名称
 	Addr        string // 服务地址
 	RoutePrefix string // 路由前缀
@@ -60,8 +55,8 @@ func NewHTTPServer(config Config) *HttpServer {
 		Handler: engine,
 	}
 
-	if config.Swagger {
-		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	if config.SwaggerURL != "" {
+		engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL(config.SwaggerURL)))
 	}
 
 	return s
@@ -127,18 +122,16 @@ func IndentedJSON(c *gin.Context, err error, data interface{}) {
 			rsp.Code = e.Code()
 			rsp.Message = e.Message()
 		default:
-			rsp.Code = defaultErrorCode
 			rsp.Message = err.Error()
 		}
 	} else {
-		rsp.Code = successCode
 		rsp.Message = "SUCCESS"
 		rsp.Data = data
 	}
 	c.IndentedJSON(status, rsp)
 }
 
-func WrapFunc(handler func(*gin.Context) (interface{}, error)) func(*gin.Context) {
+func WrapHandler(handler func(*gin.Context) (interface{}, error)) func(*gin.Context) {
 	return func(c *gin.Context) {
 		if handler != nil {
 			result, err := handler(c)

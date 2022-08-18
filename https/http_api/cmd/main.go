@@ -10,7 +10,7 @@ type game struct {
 }
 
 func (g *game) Handle(r http_api.IRouter) {
-	r.GET("/get", http_api.WrapFunc(g.get))
+	r.GET("/get", http_api.WrapHandler(g.get))
 }
 
 func (g *game) get(c *gin.Context) (interface{}, error) {
