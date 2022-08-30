@@ -2,15 +2,20 @@ package http_api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pyihe/go-pkg/errors"
 	"github.com/pyihe/go-pkg/syncs"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 )
+
+const Authorization = "Authorization"
 
 type IRouter = gin.IRouter
 
@@ -83,7 +88,7 @@ func (s *HttpServer) AddHandler(handler APIHandler) {
 	handler.Handle(engine.Group(prefix))
 }
 
-func (s *HttpServer) Stop() error {
+func (s *HttpServer) Close() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -92,6 +97,38 @@ func (s *HttpServer) Stop() error {
 	}
 	s.wg.Wait()
 	return nil
+}
+
+func JWT(method jwt.SigningMethod, loadKey func() (interface{}, error)) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var err error
+		var token *jwt.Token
+		var header = c.Request.Header
+		var tokenStr = header.Get(Authorization)
+
+		if strings.HasPrefix(tokenStr, "Bearer") {
+			var msg = strings.Split(tokenStr, " ")
+			if len(msg) != 2 || msg[0] != "Bearer" {
+				fmt.Println(0)
+				goto end
+			}
+			tokenStr = msg[1]
+		}
+		fmt.Println(1)
+		token, err = jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+			if loadKey != nil {
+				return loadKey()
+			}
+			return nil, nil
+		}, jwt.WithValidMethods([]string{method.Alg()}))
+
+	end:
+		if err != nil || token == nil || !token.Valid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		c.Next()
+	}
 }
 
 func MidCORS() gin.HandlerFunc {
@@ -138,4 +175,13 @@ func WrapHandler(handler func(*gin.Context) (interface{}, error)) func(*gin.Cont
 			IndentedJSON(c, err, result)
 		}
 	}
+}
+
+func Token(method jwt.SigningMethod, key interface{}, expire time.Duration) (string, error) {
+	var now = jwt.TimeFunc()
+	return jwt.NewWithClaims(method, jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(now.Add(expire)),
+		NotBefore: jwt.NewNumericDate(now),
+		IssuedAt:  jwt.NewNumericDate(now),
+	}).SignedString(key)
 }
