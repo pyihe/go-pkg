@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/pyihe/go-pkg/https/http_api"
+	"github.com/pyihe/go-pkg/rands"
 	"github.com/pyihe/go-pkg/tools"
 )
 
@@ -83,7 +84,7 @@ func (g *game) Handle(r http_api.IRouter) {
 }
 
 func (g *game) login(c *gin.Context) (interface{}, error) {
-	token, err := http_api.Token(jwt.SigningMethodRS256, privateKey, 20*time.Second)
+	token, err := http_api.TokenWithClientID(jwt.SigningMethodRS256, privateKey, rands.String(16), 2000*time.Second)
 	if err != nil {
 		return nil, err
 	}
@@ -91,8 +92,8 @@ func (g *game) login(c *gin.Context) (interface{}, error) {
 }
 
 func (g *game) get(c *gin.Context) (interface{}, error) {
-	//time.Sleep(10 * time.Second)
-	return 100, nil
+	clientId, _ := c.Get(http_api.KeyClientID)
+	return clientId, nil
 }
 
 func main() {

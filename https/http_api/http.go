@@ -2,7 +2,6 @@ package http_api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -15,7 +14,12 @@ import (
 	"github.com/swaggo/gin-swagger"
 )
 
-const Authorization = "Authorization"
+const (
+	bearer        = "Bearer"
+	authorization = "Authorization"
+	keyJwtJTI     = "jti"
+	KeyClientID   = "client_id"
+)
 
 type IRouter = gin.IRouter
 
@@ -104,12 +108,11 @@ func JWT(method jwt.SigningMethod, publicKey interface{}) gin.HandlerFunc {
 		var err error
 		var token *jwt.Token
 		var header = c.Request.Header
-		var tokenStr = header.Get(Authorization)
+		var tokenStr = header.Get(authorization)
 
-		if strings.HasPrefix(tokenStr, "Bearer") {
+		if strings.HasPrefix(tokenStr, bearer) {
 			var msg = strings.Split(tokenStr, " ")
-			if len(msg) != 2 || msg[0] != "Bearer" {
-				fmt.Println(0)
+			if len(msg) != 2 || msg[0] != bearer {
 				goto end
 			}
 			tokenStr = msg[1]
@@ -122,6 +125,10 @@ func JWT(method jwt.SigningMethod, publicKey interface{}) gin.HandlerFunc {
 		if err != nil || token == nil || !token.Valid {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
+		}
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if ok {
+			c.Set(KeyClientID, claims[keyJwtJTI])
 		}
 		c.Next()
 	}
@@ -173,11 +180,24 @@ func WrapHandler(handler func(*gin.Context) (interface{}, error)) func(*gin.Cont
 	}
 }
 
+// Token 生成JSON WEB TOKEN
 func Token(method jwt.SigningMethod, key interface{}, expire time.Duration) (string, error) {
 	var now = jwt.TimeFunc()
 	return jwt.NewWithClaims(method, jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(now.Add(expire)),
 		NotBefore: jwt.NewNumericDate(now),
 		IssuedAt:  jwt.NewNumericDate(now),
+	}).SignedString(key)
+}
+
+// TokenWithClientID 生成带有ClientID的Token
+func TokenWithClientID(method jwt.SigningMethod, key interface{}, id string, expire time.Duration) (string, error) {
+	var now = jwt.TimeFunc()
+	var nowPtr = jwt.NewNumericDate(now)
+	return jwt.NewWithClaims(method, jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(now.Add(expire)),
+		NotBefore: nowPtr,
+		IssuedAt:  nowPtr,
+		ID:        id,
 	}).SignedString(key)
 }
