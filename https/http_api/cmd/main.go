@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rsa"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,7 @@ import (
 )
 
 const (
-	publicKey = `-----BEGIN PUBLIC KEY-----
+	publicData = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuXws30YUeNhHeEqaxvCF
 sQy8OrnFpj7nQ36vBVp6W3jid0QhBIOGDJicKPvpNsYiil/a/N2bn2oFpEGWW2UL
 9NK5GSlxsJR1lUX+pHCvMqAuUMtkbAUFN+5x81yD5s4IlKeB4o4+5gTPbykTd1Xr
@@ -21,7 +22,7 @@ YwIDAQAB
 -----END PUBLIC KEY-----
 `
 
-	privateKey = `-----BEGIN PRIVATE KEY-----
+	privateData = `-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC5fCzfRhR42Ed4
 SprG8IWxDLw6ucWmPudDfq8FWnpbeOJ3RCEEg4YMmJwo++k2xiKKX9r83ZufagWk
 QZZbZQv00rkZKXGwlHWVRf6kcK8yoC5Qy2RsBQU37nHzXIPmzgiUp4Hijj7mBM9v
@@ -52,24 +53,37 @@ BzB9RGx1kJOYPqhd3nyeNLY=
 `
 )
 
+var (
+	publicKey  *rsa.PublicKey
+	privateKey *rsa.PrivateKey
+)
+
+func init() {
+	var err error
+	publicKey, err = jwt.ParseRSAPublicKeyFromPEM([]byte(publicData))
+	if err != nil {
+		panic(err)
+	}
+	privateKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(privateData))
+	if err != nil {
+		panic(err)
+	}
+}
+
 type game struct {
 }
 
 func (g *game) Handle(r http_api.IRouter) {
 	r.GET("/login", http_api.WrapHandler(g.login))
 
-	group := r.Group("", http_api.JWT(jwt.SigningMethodRS256, loadKey))
+	group := r.Group("", http_api.JWT(jwt.SigningMethodRS256, publicKey))
 	{
 		group.GET("/get", http_api.WrapHandler(g.get))
 	}
 }
 
 func (g *game) login(c *gin.Context) (interface{}, error) {
-	key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privateKey))
-	if err != nil {
-		return nil, err
-	}
-	token, err := http_api.Token(jwt.SigningMethodRS256, key, 20*time.Second)
+	token, err := http_api.Token(jwt.SigningMethodRS256, privateKey, 20*time.Second)
 	if err != nil {
 		return nil, err
 	}
@@ -79,11 +93,6 @@ func (g *game) login(c *gin.Context) (interface{}, error) {
 func (g *game) get(c *gin.Context) (interface{}, error) {
 	//time.Sleep(10 * time.Second)
 	return 100, nil
-}
-
-func loadKey() (interface{}, error) {
-
-	return jwt.ParseRSAPublicKeyFromPEM([]byte(publicKey))
 }
 
 func main() {

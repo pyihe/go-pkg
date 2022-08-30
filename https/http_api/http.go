@@ -99,7 +99,7 @@ func (s *HttpServer) Close() error {
 	return nil
 }
 
-func JWT(method jwt.SigningMethod, loadKey func() (interface{}, error)) gin.HandlerFunc {
+func JWT(method jwt.SigningMethod, publicKey interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var err error
 		var token *jwt.Token
@@ -114,12 +114,8 @@ func JWT(method jwt.SigningMethod, loadKey func() (interface{}, error)) gin.Hand
 			}
 			tokenStr = msg[1]
 		}
-		fmt.Println(1)
 		token, err = jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-			if loadKey != nil {
-				return loadKey()
-			}
-			return nil, nil
+			return publicKey, nil
 		}, jwt.WithValidMethods([]string{method.Alg()}))
 
 	end:
