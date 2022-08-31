@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	bearer        = "Bearer"
 	authorization = "Authorization"
 	keyJwtJTI     = "jti"
 	KeyClientID   = "client_id"
@@ -110,18 +109,13 @@ func JWT(method jwt.SigningMethod, publicKey interface{}) gin.HandlerFunc {
 		var header = c.Request.Header
 		var tokenStr = header.Get(authorization)
 
-		if strings.HasPrefix(tokenStr, bearer) {
-			var msg = strings.Split(tokenStr, " ")
-			if len(msg) != 2 || msg[0] != bearer {
-				goto end
-			}
-			tokenStr = msg[1]
+		if tokenArray := strings.Split(tokenStr, " "); len(tokenArray) == 2 {
+			tokenStr = tokenArray[1]
 		}
 		token, err = jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 			return publicKey, nil
 		}, jwt.WithValidMethods([]string{method.Alg()}))
 
-	end:
 		if err != nil || token == nil || !token.Valid {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -180,24 +174,24 @@ func WrapHandler(handler func(*gin.Context) (interface{}, error)) func(*gin.Cont
 	}
 }
 
-// Token 生成JSON WEB TOKEN
-func Token(method jwt.SigningMethod, key interface{}, expire time.Duration) (string, error) {
-	var now = jwt.TimeFunc()
-	return jwt.NewWithClaims(method, jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(now.Add(expire)),
-		NotBefore: jwt.NewNumericDate(now),
-		IssuedAt:  jwt.NewNumericDate(now),
-	}).SignedString(key)
+// Apply 申请生成Token
+type Apply struct {
+	ClientID   string            // 客户端ID
+	PrivateKey interface{}       // 对应签名类型的私钥
+	Expire     time.Duration     // Token有效期
+	Method     jwt.SigningMethod // JWT 签名类型
 }
 
-// TokenWithClientID 生成带有ClientID的Token
-func TokenWithClientID(method jwt.SigningMethod, key interface{}, id string, expire time.Duration) (string, error) {
+// NewToken 生成JSON WEB TOKEN
+// 生成普通的Token
+func NewToken(apply Apply) (string, error) {
 	var now = jwt.TimeFunc()
-	var nowPtr = jwt.NewNumericDate(now)
-	return jwt.NewWithClaims(method, jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(now.Add(expire)),
-		NotBefore: nowPtr,
-		IssuedAt:  nowPtr,
-		ID:        id,
-	}).SignedString(key)
+	var claims = jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(now.Add(apply.Expire)),
+		NotBefore: jwt.NewNumericDate(now),
+		IssuedAt:  jwt.NewNumericDate(now),
+		ID:        apply.ClientID,
+	}
+	var token = jwt.NewWithClaims(apply.Method, claims)
+	return token.SignedString(apply.PrivateKey)
 }

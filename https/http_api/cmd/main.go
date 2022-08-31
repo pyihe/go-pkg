@@ -84,7 +84,13 @@ func (g *game) Handle(r http_api.IRouter) {
 }
 
 func (g *game) login(c *gin.Context) (interface{}, error) {
-	token, err := http_api.TokenWithClientID(jwt.SigningMethodRS256, privateKey, rands.String(16), 2000*time.Second)
+	var apply = http_api.Apply{
+		ClientID:   rands.String(16),
+		PrivateKey: privateKey,
+		Expire:     30 * time.Minute,
+		Method:     jwt.SigningMethodRS256,
+	}
+	token, err := http_api.NewToken(apply)
 	if err != nil {
 		return nil, err
 	}
