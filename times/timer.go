@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-func Sleep(ctx context.Context, dur time.Duration) error {
+// SleepWithContext 携带context的Sleep，可中断
+func SleepWithContext(ctx context.Context, dur time.Duration) error {
 	timer := time.NewTimer(dur)
 	defer timer.Stop()
 
