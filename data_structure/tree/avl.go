@@ -53,7 +53,7 @@ func (avl *AVLNode) String() string {
 	return result
 }
 
-// 添加节点
+// AddNode 添加节点
 func (avl *AVLNode) AddNode(data Element) (root *AVLNode, ok bool) {
 	defer func() {
 		if ok {
@@ -93,6 +93,7 @@ func (avl *AVLNode) AddNode(data Element) (root *AVLNode, ok bool) {
 	}
 }
 
+// RemoveNode 移除节点
 func (avl *AVLNode) RemoveNode(data Element) (root *AVLNode, ok bool) {
 	defer func() {
 		if ok && root != nil {
@@ -201,6 +202,7 @@ func (avl *AVLNode) leftRightRotate() *AVLNode {
 	return avl.rightRotate()
 }
 
+// Max 获取最大节点
 func (avl *AVLNode) Max() *AVLNode {
 	node := avl
 	for node.Right != nil {
